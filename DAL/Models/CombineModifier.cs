@@ -1,0 +1,17 @@
+﻿using System;
+using System.Collections.Generic;
+
+namespace DAL.Models;
+
+public partial class CombineModifier
+{
+    public int CombineModifierId { get; set; }
+
+    public int? ModifierGroupId { get; set; }
+
+    public int? ModifierId { get; set; }
+
+    public virtual MenuModifier? Modifier { get; set; }
+
+    public virtual MenuModifierGroup? ModifierGroup { get; set; }
+}

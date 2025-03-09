@@ -1,0 +1,51 @@
+@model DAL.ViewModel.MenuModifierGroupVM
+
+@if (Model != null)
+{
+    <div class="modifier-group mt-3 p-2 border rounded">
+        <input type="hidden" name="MenuModifierGroups[@Model.ModifierGroupId].ModifierGroupId" value="@Model.ModifierGroupId">
+        <input type="hidden" name="MenuModifierGroups[@Model.ModifierGroupId].ModifierGroupName" value="@Model.ModifierGroupName">
+
+        <div class="d-flex justify-content-between align-items-center">
+            <h5>@Model.ModifierGroupName</h5>
+            <button type="button" class="btn btn-sm delete-group" data-groupid="@Model.ModifierGroupId">
+                <i class="fa fa-trash"></i>
+            </button>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center">
+            <select class="form-select" asp-for="MinSelection">
+                @for (int i = 0; i <= 5; i++)
+                {
+                    <option value="@i">@i</option>
+                }
+            </select>
+            <select class="form-select" asp-for="MaxSelection">
+                @for (int i = 0; i <= 10; i++)
+                {
+                    <option value="@i">@i</option>
+                }
+            </select>
+        </div>
+
+        <ul class="list-unstyled mt-2">
+            @for (int i = 0; i < Model.menuModifiers.Count; i++)
+            {
+                var modifier = Model.menuModifiers[i];
+                <li class="d-flex justify-content-between">
+                    <span>• @modifier.ModifierName</span>
+                    <span>₹ @modifier.ModifierRate</span>
+                    
+                    <input type="hidden" name="MenuModifierGroups[@Model.ModifierGroupId].menuModifiers.Index" value="@i">
+                    <input type="hidden" name="MenuModifierGroups[@Model.ModifierGroupId].menuModifiers[@i].ModifierId" value="@modifier.ModifierId">
+                    <input type="hidden" name="MenuModifierGroups[@Model.ModifierGroupId].menuModifiers[@i].ModifierName" value="@modifier.ModifierName">
+                    <input type="hidden" name="MenuModifierGroups[@Model.ModifierGroupId].menuModifiers[@i].ModifierRate" value="@modifier.ModifierRate">
+                </li>
+            }
+        </ul>
+    </div>
+}
+else
+{
+    <p>No modifiers available.</p>
+}

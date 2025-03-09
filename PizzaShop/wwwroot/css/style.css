@@ -1,0 +1,178 @@
+/* LoginPage */
+.loginBackground {
+    background-color: rgb(209, 235, 250);
+}
+
+.forgotBackground {
+    background-color: rgb(209, 235, 250);
+}
+
+.resetPasswordBackground {
+    background-color: rgb(209, 235, 250);
+}
+
+.input-group-text {
+    background-color: #fff;
+    border: 1px solid white;
+    border-left: 0;
+}
+
+.iconsize {
+    height: 100px;
+    width: 100px;
+}
+
+
+.form-control {
+    border-right: 0;
+}
+
+.form-control:focus+.input-group-text {
+    border-color: white;
+    background-color: white;
+    box-shadow: 0 0 0 0.2rem white;
+}
+
+.vh-100 {
+    height: 100vh;
+}
+
+.vw-100 {
+    width: 100vw;
+}
+
+.loginText {
+    margin-top: 5rem;
+}
+
+.navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+}
+
+/* Sidebar */
+
+.sidebar ul li a.active {
+    color: #fff;
+    /* Change text color for active link */
+    background-color: #007bff;
+    /* Change background color for active link */
+    border-radius: 5px;
+    /* Optional: Add some border radius */
+}
+
+.sidebar ul li img {
+    margin-right: 8px;
+    width: 24px;
+    height: 24px;
+}
+
+.sidebar ul li a {
+    text-decoration: none;
+    color: inherit;
+}
+
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 250px;
+    height: calc(100% - 56px);
+    background-color: white;
+    transition: transform 0.3s ease;
+    z-index: 1000;
+}
+
+.sidebar.show {
+    transform: translateX(0);
+    /* Show sidebar when toggled */
+}
+
+.logo {
+    height: 100px;
+    width: 100px;
+}
+
+/* Main Content */
+#content {
+    margin-left: 280px;
+    /* Default margin for larger screens */
+    padding-top: 100px;
+    padding-right: 100px;
+    transition: margin-left 0.3s ease;
+}
+
+/* Overlay */
+.overlay {
+    display: none;
+    /* Hidden by default */
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 50;
+}
+
+.overlay.show {
+    display: block;
+    /* Show overlay when sidebar is toggled */
+}
+
+
+#toggleSwitch {
+    height: 25px;
+    width: 50px;
+}
+
+.hoverIcon a {
+    visibility: hidden;
+
+}
+
+.hoverDiv:hover {
+    background-color: #dbd2d1;
+    /* transition: box-shadow 0.3s ease; */
+    box-shadow: 0 4px 8px rgba(194, 184, 184, 0.2);
+}
+
+
+.hoverDiv:hover .hoverIcon a {
+    visibility: visible;
+}
+
+
+.categoryTobevisible {
+    display: none;
+}
+
+
+.sorting-link {
+    text-decoration: none !important;
+    /* Remove underline */
+    color: black !important;
+    /* Set text color to black */
+    font-weight: bold;
+}
+
+.icon-box {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.active-icon {
+    color: black;
+    /* Highlight active arrow */
+    font-weight: bold;
+}
+
+.inactive-icon {
+    color: lightgray;
+    /* Dim inactive arrow */
+}
+
