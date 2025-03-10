@@ -507,12 +507,8 @@
                 contentType: 'application/json',  // Ensures JSON format
                 data: JSON.stringify(requestData), // Convert JS object to JSON string
                 success: function (response) {
-                    if (response.success) {
-                        alert("Success: " + response.message);
-                        window.location.reload(); // Refresh page if needed
-                    } else {
-                        alert("Error: " + response.message);
-                    }
+                    window.location.reload(); // Refresh page if needed
+
                 },
                 error: function (xhr, status, error) {
                     console.log("AJAX Error:", status, error);

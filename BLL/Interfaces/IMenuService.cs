@@ -2,6 +2,7 @@ using System.Threading.Tasks;
 using DAL.Models;
 using DAL.ViewModel;
 using Microsoft.AspNetCore.Http;
+using X.PagedList;
 
 namespace BLL.Interfaces;
 public interface IMenuService
@@ -38,6 +39,7 @@ public interface IMenuService
 
   public IEnumerable<MenuModifierGroup> GetAllModifierGroups();
 
+  public IPagedList<MenuCategoryVM> getFilteredMenuItems(int categoryId, UserFilterOptions filterOptions);
 
   MenuModifierGroup GetModifierGroupById(int id);
 

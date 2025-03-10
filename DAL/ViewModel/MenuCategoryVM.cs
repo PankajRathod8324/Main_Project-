@@ -12,6 +12,8 @@ namespace DAL.ViewModel
 
         public IPagedList<MenuItem>? menuItems { get; set; }
 
+        public List<ItemModifierGroup> ModifierGroupIds { get; set; }
+
         public int? CategoryId { get; set; }
 
         public string ItemName { get; set; } = null!;

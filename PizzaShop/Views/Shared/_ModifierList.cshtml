@@ -3,9 +3,11 @@
 @if (Model != null)
 {
     <div class="modifier-group mt-3 p-2 border rounded">
+        <!-- Hidden Fields for Group Data -->
         <input type="hidden" name="MenuModifierGroups[@Model.ModifierGroupId].ModifierGroupId" value="@Model.ModifierGroupId">
         <input type="hidden" name="MenuModifierGroups[@Model.ModifierGroupId].ModifierGroupName" value="@Model.ModifierGroupName">
 
+        <!-- Group Header with Delete Button -->
         <div class="d-flex justify-content-between align-items-center">
             <h5>@Model.ModifierGroupName</h5>
             <button type="button" class="btn btn-sm delete-group" data-groupid="@Model.ModifierGroupId">
@@ -13,39 +15,46 @@
             </button>
         </div>
 
-        <div class="d-flex justify-content-between align-items-center">
-            <select class="form-select" asp-for="MinSelection">
+        <!-- Min & Max Selection Dropdowns -->
+        <div class="d-flex justify-content-between align-items-center mt-2">
+     
+            <select class="form-select" name="MenuModifierGroups[@Model.ModifierGroupId].MinSelection">
                 @for (int i = 0; i <= 5; i++)
                 {
-                    <option value="@i">@i</option>
+                    <option value="@i" selected="@(i == Model.MinSelection ? "selected" : null)">@i</option>
                 }
             </select>
-            <select class="form-select" asp-for="MaxSelection">
+
+            <select class="form-select" name="MenuModifierGroups[@Model.ModifierGroupId].MaxSelection">
                 @for (int i = 0; i <= 10; i++)
                 {
-                    <option value="@i">@i</option>
+                    <option value="@i" selected="@(i == Model.MaxSelection ? "selected" : null)">@i</option>
                 }
             </select>
         </div>
 
+        <!-- Modifier List -->
         <ul class="list-unstyled mt-2">
-            @for (int i = 0; i < Model.menuModifiers.Count; i++)
+            @if (Model.menuModifiers != null && Model.menuModifiers.Any())
             {
-                var modifier = Model.menuModifiers[i];
-                <li class="d-flex justify-content-between">
-                    <span>• @modifier.ModifierName</span>
-                    <span>₹ @modifier.ModifierRate</span>
-                    
-                    <input type="hidden" name="MenuModifierGroups[@Model.ModifierGroupId].menuModifiers.Index" value="@i">
-                    <input type="hidden" name="MenuModifierGroups[@Model.ModifierGroupId].menuModifiers[@i].ModifierId" value="@modifier.ModifierId">
-                    <input type="hidden" name="MenuModifierGroups[@Model.ModifierGroupId].menuModifiers[@i].ModifierName" value="@modifier.ModifierName">
-                    <input type="hidden" name="MenuModifierGroups[@Model.ModifierGroupId].menuModifiers[@i].ModifierRate" value="@modifier.ModifierRate">
-                </li>
+                @for (int i = 0; i < Model.menuModifiers.Count; i++)
+                {
+                    var modifier = Model.menuModifiers[i];
+                    <li class="d-flex justify-content-between">
+                        <span>• @modifier.ModifierName</span>
+                        <span>₹ @modifier.ModifierRate</span>
+
+                        <!-- Hidden Fields for Each Modifier -->
+                        <input type="hidden" name="MenuModifierGroups[@Model.ModifierGroupId].menuModifiers[@i].ModifierId" value="@modifier.ModifierId">
+                        <input type="hidden" name="MenuModifierGroups[@Model.ModifierGroupId].menuModifiers[@i].ModifierName" value="@modifier.ModifierName">
+                        <input type="hidden" name="MenuModifierGroups[@Model.ModifierGroupId].menuModifiers[@i].ModifierRate" value="@modifier.ModifierRate">
+                    </li>
+                }
+            }
+            else
+            {
+                <p class="text-muted">No modifiers available.</p>
             }
         </ul>
     </div>
-}
-else
-{
-    <p>No modifiers available.</p>
 }

@@ -11,6 +11,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Hosting;
 using DAL.ViewModel;
+using X.PagedList;
+using X.PagedList.Extensions;
 
 namespace BLL.Services;
 
@@ -152,4 +154,42 @@ public class MenuService : IMenuService
         _menuRepository.AddModifier(modifier);
     }
 
+    public IPagedList<MenuCategoryVM> getFilteredMenuItems(int categoryId, UserFilterOptions filterOptions)
+    {
+        var menuItems = _menuRepository.GetItemsByCategoryId(categoryId).AsQueryable();
+
+        if (!string.IsNullOrEmpty(filterOptions.Search))
+        {
+            string searchLower = filterOptions.Search.ToLower();
+            menuItems = menuItems.Where(u => u.ItemName.ToLower().Contains(searchLower) ||
+                                     u.Itemtype.ItemType1.ToLower().Contains(searchLower));
+        }
+
+        // Get total count and handle page size dynamically
+        int totalItems = menuItems.Count();
+        int pageSize = filterOptions.PageSize > 0 ? Math.Min(filterOptions.PageSize, totalItems) : 10; // Default 10
+
+        var paginateditems = menuItems
+           .Select(item => new MenuCategoryVM
+           {
+               ItemId = item.ItemId,
+               ItemName = item.ItemName,
+               UnitId = item.UnitId,
+               CategoryId = item.CategoryId,
+               ItemtypeId = item.ItemtypeId,
+               Rate = item.Rate,
+               Quantity = item.Quantity,
+               IsAvailable = (bool)item.IsAvailable,
+               TaxDefault = item.TaxDefault,
+               TaxPercentage = item.TaxPercentage,
+               ShortCode = item.ShortCode,
+               Description = item.Description
+               // UnitName =  item.UnitId.HasValue ? _menuService.GetUnitById(item.UnitId.Value) : "No Unit"
+
+           }).ToPagedList(filterOptions.Page.Value, filterOptions.PageSize);
+
+
+        return paginateditems;
+
+    }
 }

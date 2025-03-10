@@ -51,6 +51,10 @@ public class MenuRepository : IMenuRepository
 
     public List<MenuItem> GetItemsByCategoryId(int categoryId)
     {
+        if (categoryId == null || categoryId == 0)
+        {
+            categoryId = 11;
+        }
         return _context.MenuItems.Where(i => i.CategoryId == categoryId && i.IsDeleted == (bool)!i.IsDeleted).ToList();
     }
 
@@ -82,14 +86,15 @@ public class MenuRepository : IMenuRepository
             Console.WriteLine($"itemsId:{p.ItemId}");
         }
 
+        // var item = _context.MenuItems.Where(i => items.Contains(i.ItemId)).ToList();
+
         foreach (var pr in items)
         {
-            pr.IsDeleted = true;
+            var existingitems = _context.MenuItems.FirstOrDefault(p => p.ItemId == pr.ItemId);
+            existingitems.IsDeleted = true;
         }
-
         Save();
     }
-
 
     public List<MenuModifier> GetModifiers()
     {
@@ -133,7 +138,23 @@ public class MenuRepository : IMenuRepository
 
     public List<MenuModifier> GetModifiersByModifierGroupId(int modifierGroupId)
     {
-        return _context.MenuModifiers.Where(i => i.ModifierGroupId == modifierGroupId).ToList();
+        // return _context.MenuModifiers.Where(i => i.ModifierGroupId == modifierGroupId).ToList();
+        var result = (from cm in _context.CombineModifiers
+                      join m in _context.MenuModifiers on cm.ModifierId equals m.ModifierId
+                      where cm.ModifierGroupId == modifierGroupId
+                      orderby cm.CombineModifierId
+                      select new MenuModifier
+                      {
+                          ModifierId = (int)cm.ModifierId,
+                          ModifierGroupId = cm.ModifierGroupId,
+                          ModifierName = m.ModifierName,
+                          ModifierRate = m.ModifierRate,
+                          UnitId = m.UnitId,
+                          Quantity = m.Quantity,
+                      }).ToList();
+
+        return result;
+
     }
 
     public string GetUnitById(int unitId)

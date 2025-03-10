@@ -149,7 +149,15 @@
                                         <option selected>Select Modifier Groups(s)</option>
                                     </select>
                                     <span asp-validation-for="ModifierGroupId" class="text-danger"></span>
-                                    <div id="modifierList"></div>
+                                   <div id="modifierList">
+                                        @if (Model.ModifierGroupIds != null)
+                                        {
+                                            @foreach (var group in Model.ModifierGroupIds)
+                                            {
+                                                @await Html.PartialAsync("_ModifierList", group)
+                                            }
+                                        }
+                                    </div>
                                 </div>
                             </div>
 
@@ -163,17 +171,25 @@
                 
 
                 <script>
-                    $(document).ready(function () {
-                        $.ajax({
-                            url: '@Url.Action("GetModifiersByGroup", "Menu")',
-                            type: 'GET',
-                            data: { groupId: groupId },
-                            success: function (response) {
-                                $("#modifierList").append(response); // Update modifier list
-                            }
-                            error: function (xhr, status, error) {
-                                console.error('error Feching items:', error);
-                            }
-                        });
-                    });
+                   <script>
+    $(document).ready(function () {
+        $('#ModifierGroupId').change(function () {
+            var groupId = $(this).val();
+            if (groupId) {
+                $.ajax({
+                    url: '@Url.Action("GetModifiersByGroup", "Menu")',
+                    type: 'GET',
+                    data: { groupId: groupId },
+                    success: function (response) {
+                        $("#modifierList").append(response); // Append fetched HTML
+                    },
+                    error: function (xhr, status, error) {
+                        console.error('Error fetching modifier groups:', error);
+                    }
+                });
+            }
+        });
+    });
+</script>
+
                 </script>
