@@ -23,7 +23,5 @@ public partial class MenuCategory
 
     public virtual ICollection<MenuItem> MenuItems { get; } = new List<MenuItem>();
 
-    public virtual ICollection<MenuModifierGroup> MenuModifierGroups { get; } = new List<MenuModifierGroup>();
-
     public virtual ICollection<MenuModifier> MenuModifiers { get; } = new List<MenuModifier>();
 }

@@ -81,6 +81,11 @@ public class MenuService : IMenuService
         _menuRepository.DeleteItems(items);
     }
 
+    public void DeleteModifiers(List<MenuModifier> modifiers)
+    {
+        _menuRepository.DeleteModifiers(modifiers);
+    }
+
 
     public IEnumerable<Itemtype> GetAllItemTypes()
     {
@@ -134,6 +139,16 @@ public class MenuService : IMenuService
         return _menuRepository.GetModifiersByModifierGroupId(modifierGroupId);
     }
 
+    public List<MenuModifierGroup> GetModifierGroupsByModifierId(int modifierId)
+    {
+        return _menuRepository.GetModifierGroupsByModifierId(modifierId);
+    }
+
+    public void RemoveCombinedModifierGroup(int modifierId, int groupId)
+    {
+        _menuRepository.RemoveCombinedModifierGroup(modifierId, groupId);
+    }
+
     public void AddModifierGroup(MenuModifierGroup modifierGroup)
     {
         _menuRepository.AddModifierGroup(modifierGroup);
@@ -154,6 +169,10 @@ public class MenuService : IMenuService
         _menuRepository.AddModifier(modifier);
     }
 
+    public void UpdateModifier(MenuModifier modifier)
+    {
+        _menuRepository.UpdateModifier(modifier);
+    }
     public IPagedList<MenuCategoryVM> getFilteredMenuItems(int categoryId, UserFilterOptions filterOptions)
     {
         var menuItems = _menuRepository.GetItemsByCategoryId(categoryId).AsQueryable();
@@ -190,6 +209,38 @@ public class MenuService : IMenuService
 
 
         return paginateditems;
+
+    }
+    public IPagedList<MenuModifierGroupVM> getFilteredMenuModifiers(int groupId, UserFilterOptions filterOptions)
+    {
+        var menuModifiers = _menuRepository.GetModifiersByModifierGroupId(groupId).AsQueryable();
+
+        if (!string.IsNullOrEmpty(filterOptions.Search))
+        {
+            string searchLower = filterOptions.Search.ToLower();
+            menuModifiers = menuModifiers.Where(u => u.ModifierName.ToLower().Contains(searchLower));
+        }
+
+        // Get total count and handle page size dynamically
+        int totalItems = menuModifiers.Count();
+        int pageSize = filterOptions.PageSize > 0 ? Math.Min(filterOptions.PageSize, totalItems) : 10; // Default 10
+
+        var paginatedmodifiers = menuModifiers
+           .Select(item => new MenuModifierGroupVM
+           {
+               ModifierId = item.ModifierId,
+               ModifierName = item.ModifierName,
+               UnitId = item.UnitId,
+               ModifierRate = item.ModifierRate,
+               Quantity = item.Quantity,
+               IsDeleted = item.IsDeleted,
+               ModifierDecription = item.ModifierDecription,
+               UnitName = item.UnitId.HasValue ? _menuRepository.GetUnitById(item.UnitId.Value) : "No Unit"
+
+           }).ToPagedList(filterOptions.Page.Value, filterOptions.PageSize);
+
+
+        return paginatedmodifiers;
 
     }
 }

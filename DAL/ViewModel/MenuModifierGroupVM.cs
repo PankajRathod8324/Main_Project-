@@ -14,6 +14,8 @@ namespace DAL.ViewModel
          public List<int> ModifierIds { get; set; }
         public int ModifierGroupId { get; set; }
 
+        public List<int> ModifierGroupIds { get; set; } = new List<int>(); 
+
         public string ModifierGroupName { get; set; } = null!;
 
         public string ModifierGroupDecription { get; set; } = null!;
@@ -48,6 +50,7 @@ namespace DAL.ViewModel
 
         public string UnitName { get; set; }
 
+      
 
     }
 }

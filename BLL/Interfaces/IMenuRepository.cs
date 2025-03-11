@@ -6,56 +6,63 @@ namespace BLL.Interfaces;
 public interface IMenuRepository
 {
 
-    IEnumerable<MenuCategory> GetAllCategories();
+  IEnumerable<MenuCategory> GetAllCategories();
 
-    MenuCategory GetCategoryById(int id);
+  MenuCategory GetCategoryById(int id);
 
-    void AddCategory(MenuCategory category);
+  void AddCategory(MenuCategory category);
 
-    void UpdateCategory(MenuCategoryVM category);
+  void UpdateCategory(MenuCategoryVM category);
 
-    void DeleteCategory(MenuCategory category);
-    List<MenuItem> GetItemsByCategoryId(int categoryId);
-    void AddMenuItem(MenuItem menuItem);
+  void DeleteCategory(MenuCategory category);
+  List<MenuItem> GetItemsByCategoryId(int categoryId);
+  void AddMenuItem(MenuItem menuItem);
 
-    void AddMenuItemModifierGroup(ItemModifierGroup menuitemmodifier);
+  void AddMenuItemModifierGroup(ItemModifierGroup menuitemmodifier);
 
-    public void UpdateMenuItem(MenuItem item);
+  public void UpdateMenuItem(MenuItem item);
 
-    public void DeleteItems(List<MenuItem> items);
+  public void DeleteItems(List<MenuItem> items);
 
-    public IEnumerable<Itemtype> GetAllItemTypes();
-
-
-    List<MenuModifier> GetModifiers();
-    public IEnumerable<Unit> GetAllUnits();
-
-    public IEnumerable<MenuModifierGroup> GetAllModifierGroups();
+  public IEnumerable<Itemtype> GetAllItemTypes();
 
 
-    MenuModifierGroup GetModifierGroupById(int id);
+  List<MenuModifier> GetModifiers();
+  public IEnumerable<Unit> GetAllUnits();
 
-     public void AddCombinedModifierGroup(CombineModifier modifierGroup);
+  public IEnumerable<MenuModifierGroup> GetAllModifierGroups();
 
-      public MenuModifier GetModifierById(int modifierid);
 
-    //  string GetModifierNameById(int modifierId, MenuModifierGroupVM modifierGroups);
+  MenuModifierGroup GetModifierGroupById(int id);
 
-    public MenuItem GetItemById(int itemid);
+  public void AddCombinedModifierGroup(CombineModifier modifierGroup);
 
-    ItemModifierGroup GetItemModifier(int itemid, int modifiergroupid);
+  public MenuModifier GetModifierById(int modifierid);
 
-    public string GetUnitById(int unitId);
+  //  string GetModifierNameById(int modifierId, MenuModifierGroupVM modifierGroups);
 
-    List<MenuModifier> GetModifiersByModifierGroupId(int modifierGroupId);
+  public MenuItem GetItemById(int itemid);
 
-    void AddModifierGroup(MenuModifierGroup modifierGroup);
+  ItemModifierGroup GetItemModifier(int itemid, int modifiergroupid);
 
-    void UpdateModifierGroup(MenuModifierGroupVM modifierGroup);
+  public string GetUnitById(int unitId);
 
-    void DeleteModifierGroup(MenuModifierGroup modifierGroup);
+  List<MenuModifier> GetModifiersByModifierGroupId(int modifierGroupId);
 
-    public void AddModifier(MenuModifier modifier);
+   public List<MenuModifierGroup> GetModifierGroupsByModifierId(int modifierId);
+
+   public void RemoveCombinedModifierGroup(int modifierId, int groupId);
+  void AddModifierGroup(MenuModifierGroup modifierGroup);
+
+  void UpdateModifierGroup(MenuModifierGroupVM modifierGroup);
+
+  void DeleteModifierGroup(MenuModifierGroup modifierGroup);
+
+  public void AddModifier(MenuModifier modifier);
+
+  void UpdateModifier(MenuModifier modifier);
+
+  void DeleteModifiers(List<MenuModifier> modifiers);
 
 
 }

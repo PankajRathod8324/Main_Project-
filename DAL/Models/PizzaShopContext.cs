@@ -71,7 +71,7 @@ public partial class PizzaShopContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseNpgsql("Host=localhost; Database=Pizza_Shop; Username=postgres;     password=user123 ");
+        => optionsBuilder.UseNpgsql("Host=localhost; Database=Pizza_Shop; Username=postgres; password=user123");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -439,7 +439,6 @@ public partial class PizzaShopContext : DbContext
             entity.ToTable("menu_modifier_groups");
 
             entity.Property(e => e.ModifierGroupId).HasColumnName("modifier_group_id");
-            entity.Property(e => e.CategoryId).HasColumnName("category_id");
             entity.Property(e => e.CreatedAt)
                 .HasDefaultValueSql("now()")
                 .HasColumnType("timestamp without time zone")
@@ -457,11 +456,6 @@ public partial class PizzaShopContext : DbContext
             entity.Property(e => e.ModifierGroupName)
                 .HasMaxLength(100)
                 .HasColumnName("modifier_group_name");
-
-            entity.HasOne(d => d.Category).WithMany(p => p.MenuModifierGroups)
-                .HasForeignKey(d => d.CategoryId)
-                .OnDelete(DeleteBehavior.SetNull)
-                .HasConstraintName("menu_modifier_groups_category_id_fkey");
         });
 
         modelBuilder.Entity<Order>(entity =>

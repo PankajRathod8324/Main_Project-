@@ -13,8 +13,6 @@ public partial class MenuModifierGroup
 
     public bool? IsDeleted { get; set; }
 
-    public int? CategoryId { get; set; }
-
     public int CreatedBy { get; set; }
 
     public DateTime CreatedAt { get; set; }
@@ -22,8 +20,6 @@ public partial class MenuModifierGroup
     public int ModifiedBy { get; set; }
 
     public DateTime ModifiedAt { get; set; }
-
-    public virtual MenuCategory? Category { get; set; }
 
     public virtual ICollection<CombineModifier> CombineModifiers { get; } = new List<CombineModifier>();
 

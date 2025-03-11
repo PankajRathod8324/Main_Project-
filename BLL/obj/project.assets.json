@@ -7931,11 +7931,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\MY_TEMP\\PizzaShop_N_Tier-main\\BLL\\BLL.csproj",
+      "projectUniqueName": "d:\\MY_TEMP\\PizzaShop_N_Tier-main\\BLL\\BLL.csproj",
       "projectName": "BLL",
-      "projectPath": "D:\\MY_TEMP\\PizzaShop_N_Tier-main\\BLL\\BLL.csproj",
+      "projectPath": "d:\\MY_TEMP\\PizzaShop_N_Tier-main\\BLL\\BLL.csproj",
       "packagesPath": "C:\\Users\\LENOVO\\.nuget\\packages\\",
-      "outputPath": "D:\\MY_TEMP\\PizzaShop_N_Tier-main\\BLL\\obj\\",
+      "outputPath": "d:\\MY_TEMP\\PizzaShop_N_Tier-main\\BLL\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\LENOVO\\AppData\\Roaming\\NuGet\\NuGet.Config"
@@ -7950,8 +7950,8 @@
         "net7.0": {
           "targetAlias": "net7.0",
           "projectReferences": {
-            "D:\\MY_TEMP\\PizzaShop_N_Tier-main\\DAL\\DAL.csproj": {
-              "projectPath": "D:\\MY_TEMP\\PizzaShop_N_Tier-main\\DAL\\DAL.csproj"
+            "d:\\MY_TEMP\\PizzaShop_N_Tier-main\\DAL\\DAL.csproj": {
+              "projectPath": "d:\\MY_TEMP\\PizzaShop_N_Tier-main\\DAL\\DAL.csproj"
             }
           }
         }

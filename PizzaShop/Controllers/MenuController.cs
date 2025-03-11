@@ -64,7 +64,7 @@ public class MenuController : Controller
         // categoryId = categoryId ? null : 11;
 
 
-        var menuitemvm = _menuService.getFilteredMenuItems(categoryId, filterOptions);
+        X.PagedList.IPagedList<MenuCategoryVM> menuitemvm = _menuService.getFilteredMenuItems(categoryId, filterOptions);
 
         if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
         {
@@ -123,7 +123,7 @@ public class MenuController : Controller
             Description = item.Description,
             ModifierGroupId = item.ModifierGroupId
         };
-        
+
 
         return PartialView("_EditItemPV", itemvm);
     }
@@ -259,7 +259,7 @@ public class MenuController : Controller
 
 
     [Authorize(Policy = "MenuViewPolicy")]
-    public IActionResult MenuModifier(int modifierId)
+    public IActionResult MenuModifier(int groupId, UserFilterOptions filterOptions)
     {
         var units = _menuService.GetAllUnits(); // Fetch Units from the database
         var unitSelectList = units.Select(r => new SelectListItem
@@ -278,88 +278,75 @@ public class MenuController : Controller
         ViewBag.ModifierGroups = modifiergroupSelectList;
 
 
-        Console.WriteLine("Click this : " + modifierId);
-        var modifiers = _menuService.GetModifiersByModifierGroupId(modifierId);
-        foreach (var modifier in modifiers)
-        {
-            Console.WriteLine(modifier.ModifierName);
-        }
+        Console.WriteLine("Click this : " + groupId);
+        filterOptions.Page ??= 1;
 
-        // var unitname = 
-
-        //mapping with menuitem and modifier groups
-
-        var modifieritems = modifiers
-          .Select(item => new MenuModifierGroupVM
-          {
-              ModifierName = item.ModifierName,
-              ModifierRate = item.ModifierRate,
-              CategoryId = item.CategoryId,
-              UnitId = item.UnitId,
-              Quantity = item.Quantity,
-              ModifierDecription = item.ModifierDecription,
-              UnitName = item.UnitId.HasValue ? _menuService.GetUnitById(item.UnitId.Value) : "No Unit"
-
-          }).ToList();
+        X.PagedList.IPagedList<MenuModifierGroupVM> menumodifiervm = _menuService.getFilteredMenuModifiers(groupId, filterOptions);
 
 
+        // if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+        // {
+        //     return PartialView("_MenuModifierPV", menumodifiervm);
+        // }
 
-        MenuModifierGroupVM modifiervm = new MenuModifierGroupVM
-        {
-            menuModifiers = modifieritems
-            // UnitName = modifiers.UnitId.HasValue ? _menuService.GetUnitById(modifiers.UnitId.Value) : "No Units"
-        };
-        return PartialView("_MenuModifierPV", modifiervm);
+
+        // MenuModifierGroupVM modifiervm = new MenuModifierGroupVM
+        // {
+        //     menuModifiers = menumodifiervm
+        //     // UnitName = modifiers.UnitId.HasValue ? _menuService.GetUnitById(modifiers.UnitId.Value) : "No Units"
+        // };
+        return PartialView("_MenuModifierPV", menumodifiervm);
     }
 
     [Authorize]
     public IActionResult GetAllModifier()
     {
         var modifiers = _menuService.GetModifiers();
-        Console.WriteLine("Modifiers");
+
+        if (modifiers == null || !modifiers.Any())
+        {
+            Console.WriteLine("❌ No Modifiers Found!");
+            return NotFound("No modifiers found.");
+        }
+
+        Console.WriteLine("✅ Modifiers Retrieved:");
         foreach (var modifier in modifiers)
         {
             Console.WriteLine(modifier.ModifierName);
         }
 
-        var modifieritems = modifiers
-          .Select(item => new MenuModifierGroupVM
-          {
-              ModifierGroupId = (int)item.ModifierGroupId,
-              ModifierId = item.ModifierId,
-              ModifierName = item.ModifierName,
-              ModifierRate = item.ModifierRate,
-              CategoryId = item.CategoryId,
-              UnitId = item.UnitId,
-              Quantity = item.Quantity,
-              ModifierDecription = item.ModifierDecription,
-              UnitName = item.UnitId.HasValue ? _menuService.GetUnitById(item.UnitId.Value) : "No Unit"
-
-          }).ToList();
-
-        MenuModifierGroupVM modifiervm = new MenuModifierGroupVM
+        var modifierItems = modifiers.Select(item => new MenuModifierGroupVM
         {
-            menuModifiers = modifieritems
-            // UnitName = modifiers.UnitId.HasValue ? _menuService.GetUnitById(modifiers.UnitId.Value) : "No Units"
+            ModifierGroupId = item.ModifierGroupId ?? 0, // Avoid null exception
+            ModifierId = item.ModifierId,
+            ModifierName = item.ModifierName,
+            ModifierRate = item.ModifierRate,
+            UnitId = item.UnitId,
+            Quantity = item.Quantity,
+            ModifierDecription = item.ModifierDecription,
+            UnitName = item.UnitId.HasValue ? (_menuService.GetUnitById(item.UnitId.Value) ?? "No Unit") : "No Unit"
+        }).ToList();
+
+        var modifierVM = new MenuModifierGroupVM
+        {
+            menuModifiers = modifierItems
         };
-        return PartialView("_MenuModifierByModifierGroup", modifiervm);
+
+        return PartialView("_EditModifierByModifierGroup.", modifierVM);
     }
 
     [Authorize]
-    public IActionResult GetModifiersByGroup(int groupId)
+    public IActionResult GetModifiersByGroup(int groupId, UserFilterOptions filterOptions)
     {
         var modifiers = _menuService.GetModifiersByModifierGroupId(groupId);
         var groupName = _menuService.GetModifierGroupById(groupId);
-
 
         var modifieritems = modifiers
            .Select(item => new MenuModifierGroupVM
            {
                ModifierGroupId = (int)item.ModifierGroupId,
-
                ModifierName = item.ModifierName,
                ModifierRate = item.ModifierRate,
-               CategoryId = item.CategoryId,
                UnitId = item.UnitId,
                Quantity = item.Quantity,
                ModifierDecription = item.ModifierDecription,
@@ -373,15 +360,8 @@ public class MenuController : Controller
             // UnitName = modifiers.UnitId.HasValue ? _menuService.GetUnitById(modifiers.UnitId.Value) : "No Units"
         };
 
+
         // var groupName = _menuService.GetModifierNameById(groupId, modifiervm);
-
-
-
-
-
-
-
-
         return PartialView("_ModifierList", modifiervm);
     }
     // public IActionResult GetModifiers(int page = 1, string search = "")
@@ -398,6 +378,22 @@ public class MenuController : Controller
     [Authorize(Policy = "MenuViewPolicy")]
     public IActionResult MenuModifierGroup()
     {
+        var units = _menuService.GetAllUnits(); // Fetch Units from the database
+        var unitSelectList = units.Select(r => new SelectListItem
+        {
+            Value = r.UnitId.ToString(),
+            Text = r.UnitName
+        }).ToList();
+        ViewBag.Units = unitSelectList;
+
+        var modifiergroups = _menuService.GetAllModifierGroups(); // Fetch Units from the database
+        var modifiergroupSelectList = modifiergroups.Select(r => new SelectListItem
+        {
+            Value = r.ModifierGroupId.ToString(),
+            Text = r.ModifierGroupName
+        }).ToList();
+        ViewBag.ModifierGroups = modifiergroupSelectList;
+
 
         var modifierGroups = _menuService.GetAllModifierGroups();
 
@@ -551,7 +547,7 @@ public class MenuController : Controller
         TempData["Message"] = "Menu item added successfully!";
         TempData["MessageType"] = "success";
 
-        return RedirectToAction("Menu", "Home");
+        return RedirectToAction("MenuModifier", "Menu", menuitem.ModifierGroupId);
     }
 
 
@@ -613,6 +609,35 @@ public class MenuController : Controller
     //     return RedirectToAction("Menu", "Home");
     // }
 
+    [HttpGet]
+    public IActionResult GetModifierGroup(int id)
+    {
+        Console.WriteLine($"Fetching Modifier Group for ID: {id}");
+
+        var group = _menuService.GetModifierGroupById(id);
+        if (group == null)
+        {
+            Console.WriteLine("❌ Modifier Group not found!");
+            return NotFound("Modifier Group not found.");
+        }
+
+        var modifiers = _menuService.GetModifiersByModifierGroupId(id);
+
+        Console.WriteLine($"✅ Found {modifiers.Count()} Modifiers in Group {id}");
+
+        var viewModel = new MenuModifierGroupVM
+        {
+            ModifierGroupId = group.ModifierGroupId,
+            ModifierGroupName = group.ModifierGroupName,
+            ModifierGroupDecription = group.ModifierGroupDecription,
+            ModifierIds = modifiers.Select(m => m.ModifierId).ToList()
+        };
+
+        return PartialView("_EditModifierGroupPV", viewModel); // Return Partial View
+
+    }
+
+
 
     [Authorize(Policy = "MenuEditPolicy")]
     [HttpPost]
@@ -669,20 +694,62 @@ public class MenuController : Controller
 
     [Authorize(Policy = "MenuEditPolicy")]
     [HttpPost]
-    public IActionResult EditModifierGroup(MenuModifierGroupVM model)
+    public IActionResult EditModifierGroup([FromBody] MenuModifierGroupVM model)
     {
-        Console.WriteLine("Edit name:" + model.ModifierGroupId);
-        Console.WriteLine("Edit name:" + model.ModifierGroupName);
-        Console.WriteLine("Edit name:" + model.ModifierGroupDecription);
+        if (model == null)
+        {
+            return Json(new { success = false, message = "Invalid data received." });
+        }
 
-        Console.WriteLine(ModelState.IsValid);
+        Console.WriteLine("Editing Modifier Group ID:" + model.ModifierGroupId);
+        Console.WriteLine("New Name:" + model.ModifierGroupName);
+        Console.WriteLine("New Description:" + model.ModifierGroupDecription);
 
-        _menuService.UpdateModifierGroup(model);
-        return RedirectToAction("Menu", "Home");
+        if (!ModelState.IsValid)
+        {
+            return Json(new { success = false, message = "Invalid data." });
+        }
 
+        // Fetch existing Modifier Group from DB
+        var existingGroup = _menuService.GetModifierGroupById(model.ModifierGroupId);
+        if (existingGroup == null)
+        {
+            return Json(new { success = false, message = "Modifier Group not found." });
+        }
 
+        // Update basic details
+        existingGroup.ModifierGroupName = model.ModifierGroupName;
+        existingGroup.ModifierGroupDecription = model.ModifierGroupDecription;
 
+        // Update Modifier Group associations
+        var existingModifierIds = _menuService.GetModifiersByModifierGroupId(model.ModifierGroupId)
+                                                .Select(m => m.ModifierId)
+                                                .ToList();
+
+        // Find modifiers to remove (Old ones that are not in the new list)
+        var modifiersToRemove = existingModifierIds.Except(model.ModifierIds).ToList();
+        foreach (var modifierId in modifiersToRemove)
+        {
+            // _menuService.RemoveModifierFromGroup(model.ModifierGroupId, modifierId);
+        }
+
+        // Find modifiers to add (New ones that were not in the old list)
+        var modifiersToAdd = model.ModifierIds.Except(existingModifierIds).ToList();
+        foreach (var modifierId in modifiersToAdd)
+        {
+            var combinedModifier = new CombineModifier
+            {
+                ModifierId = modifierId,
+                ModifierGroupId = model.ModifierGroupId
+            };
+            _menuService.AddCombinedModifierGroup(combinedModifier);
+        }
+
+        // _menuService.UpdateModifierGroup(existingGroup);
+
+        return Json(new { success = true, message = "Modifier Group updated successfully!" });
     }
+
 
 
     [Authorize(Policy = "MenuDeletePolicy")]
@@ -702,44 +769,194 @@ public class MenuController : Controller
     public IActionResult AddMenuModifier(MenuModifierGroupVM menuModifier)
     {
         Console.WriteLine(ModelState.IsValid);
-        Console.WriteLine("--------------Add Modifier");
+        // Console.WriteLine("--------------Add Modifier" + menuModifier.ModifierGroupId);
 
-        if (!ModelState.IsValid)
+
+        var units = _menuService.GetAllUnits(); // Fetch Units from the database
+        var unitSelectList = units.Select(r => new SelectListItem
         {
-            // Log the model state errors
-            foreach (var state in ModelState)
-            {
-                foreach (var error in state.Value.Errors)
-                {
-                    Console.WriteLine($"Property: {state.Key}, Error: {error.ErrorMessage}");
-                }
-            }
+            Value = r.UnitId.ToString(),
+            Text = r.UnitName
+        }).ToList();
+        ViewBag.Units = unitSelectList;
 
-        }
-        var menumodifier = new MenuModifier
+        var modifiergroups = _menuService.GetAllModifierGroups(); // Fetch Units from the database
+        var modifiergroupSelectList = modifiergroups.Select(r => new SelectListItem
+        {
+            Value = r.ModifierGroupId.ToString(),
+            Text = r.ModifierGroupName
+        }).ToList();
+        ViewBag.ModifierGroups = modifiergroupSelectList;
+
+
+        var newmenumodifier = new MenuModifier
         {
             ModifierName = menuModifier.ModifierName,
             ModifierRate = menuModifier.ModifierRate,
             Quantity = menuModifier.Quantity,
             UnitId = menuModifier.UnitId,
-            ModifierGroupId = menuModifier.ModifierGroupId,
             ModifierDecription = menuModifier.ModifierDecription
 
         };
 
-        Console.WriteLine(menumodifier.ModifierName);
+        _menuService.AddModifier(newmenumodifier);
 
+        // Add multiple Modifier Groups
+        if (menuModifier.ModifierGroupIds != null && menuModifier.ModifierGroupIds.Any())
+        {
+            foreach (var groupId in menuModifier.ModifierGroupIds)
+            {
+                var combinedModifier = new CombineModifier
+                {
+                    ModifierId = newmenumodifier.ModifierId,
+                    ModifierGroupId = groupId
+                };
+                _menuService.AddCombinedModifierGroup(combinedModifier);
+            }
+        }
 
-
-        _menuService.AddModifier(menumodifier);
         Console.WriteLine("--------------Add Modifier END");
         TempData["Message"] = "Modifier added successfully!";
         TempData["MessageType"] = "success";
 
 
-        return RedirectToAction("Menu", "Home");
+
+        return Json(new { success = true, message = "Modifier Added Successfully!" });
     }
 
+
+
+
+    public IActionResult EditMenuModifier(int modifierid)
+    {
+        Console.WriteLine(modifierid);
+
+        // Fetch Units from the database
+        var units = _menuService.GetAllUnits();
+        ViewBag.Units = units.Select(r => new SelectListItem
+        {
+            Value = r.UnitId.ToString(),
+            Text = r.UnitName
+        }).ToList();
+
+        // Fetch Modifier Groups from the database
+        var modifierGroups = _menuService.GetAllModifierGroups();
+        ViewBag.ModifierGroups = modifierGroups.Select(r => new SelectListItem
+        {
+            Value = r.ModifierGroupId.ToString(),
+            Text = r.ModifierGroupName
+        }).ToList();
+
+        // Fetch the modifier item
+        var modifier = _menuService.GetModifierById(modifierid);
+        if (modifier == null)
+        {
+            return NotFound();
+        }
+
+        // Fetch associated modifier group IDs (multiple)
+        var assignedModifierGroups = _menuService.GetModifierGroupsByModifierId(modifierid);
+
+        var itemvm = new MenuModifierGroupVM
+        {
+            ModifierId = modifier.ModifierId,
+            ModifierGroupIds = assignedModifierGroups.Select(mg => mg.ModifierGroupId).ToList(), // Multiple selection
+            ModifierName = modifier.ModifierName,
+            ModifierRate = modifier.ModifierRate,
+            UnitId = modifier.UnitId,
+            Quantity = modifier.Quantity,
+            ModifierDecription = modifier.ModifierDecription,
+            UnitName = modifier.UnitId.HasValue ? _menuService.GetUnitById(modifier.UnitId.Value) : "No Unit"
+        };
+
+        return PartialView("_EditModifierPV", itemvm);
+    }
+
+    [HttpPost]
+    [Authorize(Policy = "MenuEditPolicy")]
+    public IActionResult EditMenuModifier([FromBody] MenuModifierGroupVM menuModifier)
+    {
+        if (menuModifier == null)
+        {
+            return Json(new { success = false, message = "Invalid request data." });
+        }
+
+        Console.WriteLine(ModelState.IsValid);
+
+        // Fetch the existing modifier
+        var existingModifier = _menuService.GetModifierById(menuModifier.ModifierId);
+        if (existingModifier == null)
+        {
+            return Json(new { success = false, message = "Modifier not found." });
+        }
+
+        // Update the modifier properties
+        existingModifier.ModifierName = menuModifier.ModifierName;
+        existingModifier.ModifierRate = menuModifier.ModifierRate;
+        existingModifier.Quantity = menuModifier.Quantity;
+        existingModifier.UnitId = menuModifier.UnitId;
+        existingModifier.ModifierDecription = menuModifier.ModifierDecription;
+
+        _menuService.UpdateModifier(existingModifier);
+
+        // Fetch existing assigned modifier groups
+        var existingModifierGroups = _menuService.GetModifierGroupsByModifierId(existingModifier.ModifierId)
+                                                  .Select(mg => mg.ModifierGroupId)
+                                                  .ToList();
+
+        var newModifierGroups = menuModifier.ModifierGroupIds ?? new List<int>();
+
+        // Find groups to remove (exist in old but not in new)
+        var groupsToRemove = existingModifierGroups.Except(newModifierGroups).ToList();
+        // Find groups to add (exist in new but not in old)
+        var groupsToAdd = newModifierGroups.Except(existingModifierGroups).ToList();
+
+        // Remove modifier groups that are no longer selected
+        foreach (var groupId in groupsToRemove)
+        {
+            _menuService.RemoveCombinedModifierGroup(existingModifier.ModifierId, groupId);
+        }
+
+        // Add new modifier groups that were selected
+        foreach (var groupId in groupsToAdd)
+        {
+            var combinedModifier = new CombineModifier
+            {
+                ModifierId = existingModifier.ModifierId,
+                ModifierGroupId = groupId
+            };
+            _menuService.AddCombinedModifierGroup(combinedModifier);
+        }
+
+        Console.WriteLine("--------------Edit Modifier END");
+        TempData["Message"] = "Modifier updated successfully!";
+        TempData["MessageType"] = "success";
+
+        return Json(new { success = true, message = "Modifier updated successfully!" });
+    }
+
+
+
+    public IActionResult DeleteModifier([FromBody] List<MenuModifier> modifiers)
+    {
+        Console.WriteLine("HEEJNJKFNJN");
+        if (modifiers == null || modifiers.Count == 0)
+        {
+            return BadRequest("No modifiers received");
+        }
+
+        Console.WriteLine("Updatedjfnldnfledf");
+        Console.WriteLine(modifiers.Count);
+
+        _menuService.DeleteModifiers(modifiers);
+
+        TempData["Message"] = "Successfully Delete Item.";
+        TempData["MessageType"] = "success"; // Types: success, error, warning, info
+
+
+
+        return RedirectToAction("Menu", "Home");
+    }
 
 
 

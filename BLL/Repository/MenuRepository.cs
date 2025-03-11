@@ -96,6 +96,25 @@ public class MenuRepository : IMenuRepository
         Save();
     }
 
+    public void DeleteModifiers(List<MenuModifier> modifiers)
+    {
+        Console.WriteLine(modifiers);
+        foreach (var p in modifiers)
+        {
+            Console.WriteLine($"itemsId:{p.ModifierId}");
+        }
+
+        // var item = _context.MenuItems.Where(i => items.Contains(i.ItemId)).ToList();
+
+        foreach (var pr in modifiers)
+        {
+            var existingitems = _context.MenuModifiers.FirstOrDefault(p => p.ModifierId == pr.ModifierId);
+            existingitems.IsDeleted = true;
+        }
+        Save();
+    }
+
+
     public List<MenuModifier> GetModifiers()
     {
         return _context.MenuModifiers.ToList();
@@ -141,7 +160,7 @@ public class MenuRepository : IMenuRepository
         // return _context.MenuModifiers.Where(i => i.ModifierGroupId == modifierGroupId).ToList();
         var result = (from cm in _context.CombineModifiers
                       join m in _context.MenuModifiers on cm.ModifierId equals m.ModifierId
-                      where cm.ModifierGroupId == modifierGroupId
+                      where cm.ModifierGroupId == modifierGroupId && m.IsDeleted == false
                       orderby cm.CombineModifierId
                       select new MenuModifier
                       {
@@ -156,6 +175,35 @@ public class MenuRepository : IMenuRepository
         return result;
 
     }
+
+    public List<MenuModifierGroup> GetModifierGroupsByModifierId(int modifierId)
+    {
+        var result = (from cm in _context.CombineModifiers
+                      join mg in _context.MenuModifierGroups on cm.ModifierGroupId equals mg.ModifierGroupId
+                      where cm.ModifierId == modifierId
+                      select new MenuModifierGroup
+                      {
+                          ModifierGroupId = mg.ModifierGroupId,
+                          ModifierGroupName = mg.ModifierGroupName
+                      }).ToList();
+
+        return result;
+    }
+
+    public void RemoveCombinedModifierGroup(int modifierId, int groupId)
+    {
+        var entry = _context.CombineModifiers
+                            .FirstOrDefault(cm => cm.ModifierId == modifierId && cm.ModifierGroupId == groupId);
+        if (entry != null)
+        {
+            _context.CombineModifiers.Remove(entry);
+            _context.SaveChanges();
+        }
+    }
+
+
+
+
 
     public string GetUnitById(int unitId)
     {
@@ -218,6 +266,12 @@ public class MenuRepository : IMenuRepository
             modifierGroup.IsDeleted = true;
             Save();
         }
+    }
+
+    public void UpdateModifier(MenuModifier modifier)
+    {
+        _context.MenuModifiers.Update(modifier);
+        Save();
     }
 
     public void Save()
