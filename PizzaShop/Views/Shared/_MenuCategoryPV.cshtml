@@ -301,7 +301,7 @@
     <div class="modal " id="newitemModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-xl modal-dialog-centered">
             <div class="modal-content">
-                <form asp-action="AddMenuItem" asp-controller="Menu" method="post">
+                <form id="Additem">
                     <div class="modal-header">
                         <h5 class="modal-title text-secondary" id="exampleModalLabel">Add New Menu Item</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -446,7 +446,8 @@
                             </div>
                             <div class="col">
                                 <div class="card  text-center p-3 h-100" style="background-color: #fff4e6;">
-                                    <select id="modifierGroupDropdown" class="form-select">
+                                    <select id="modifierGroupDropdown" class="form-select"
+                                        modifier-id="@Model.ModifierGroupId">
                                         <option selected disabled>Select Modifier Groups</option>
                                         @foreach (var group in ViewBag.ModifierGroups)
                                         {
@@ -504,6 +505,9 @@
 
                 loadMenuItems();
             });
+            var selectedModifierGroups = [];
+
+
             // Handle search and sorting
             $("#searchForm").on("submit", function (e) {
                 e.preventDefault();
@@ -604,26 +608,125 @@
                 $("#CategoryDescription").val(Description);
                 $("#Modal").modal("show");
             });
+            $(document).on("click", ".delete-group", function () {
+                $(this).closest(".modifier-group").remove();
+                var deleteid = $(this).data('groupid');
+                console.log(deleteid);
+
+                selectedModifierGroups = selectedModifierGroups.filter(modifier => modifier.modifiergroupid != deleteid);
+                console.log(selectedModifierGroups);
+            });
+
             $("#modifierGroupDropdown").change(function () {
                 var groupId = $(this).val();
 
-                if (groupId) {
+                if (!groupId) {
+                    $("#modifierList").html(""); // Clear list if no group selected
+                    return;
+                }
+
+                // Find the parent div where the new modifier group will be appended
+                var parentDiv = $("#modifierList");
+
+                $.ajax({
+                    url: '@Url.Action("GetModifiersByGroup", "Menu")',
+                    type: 'GET',
+                    data: { groupId: groupId },
+                    success: function (response) {
+                        // Append the new modifier group to the UI
+                        parentDiv.append(response);
+
+                        // Once the partial view is appended, attach event listeners to min/max dropdowns
+                        setTimeout(() => {
+                            var newGroup = parentDiv.find(".modifier-group").last(); // Get the latest added modifier group
+
+                            var minSelection = newGroup.find(".min-input").val();
+                            var maxSelection = newGroup.find(".max-input").val();
+
+                            selectedModifierGroups.push({
+                                modifiergroupid: groupId,
+                                minSelection: minSelection,
+                                maxSelection: maxSelection
+                            });
+
+                            console.log("Selected Modifier Groups:", selectedModifierGroups);
+                        }, 500);
+                    }
+                });
+            });
+
+            // Listen for changes in min/max selection
+            $(document).on("change", ".min-input, .max-input", function () {
+                var parentGroup = $(this).closest(".modifier-group");
+                var groupId = parentGroup.find("input[name*='ModifierGroupId']").val();
+                var minSelection = parentGroup.find(".min-input").val();
+                var maxSelection = parentGroup.find(".max-input").val();
+
+                // Update the selectedModifierGroups array
+                selectedModifierGroups.forEach((group) => {
+                    if (group.modifiergroupid == groupId) {
+                        group.minSelection = minSelection;
+                        group.maxSelection = maxSelection;
+                    }
+                });
+
+                console.log("Updated Selected Modifier Groups:", selectedModifierGroups);
+            });
+
+            // When submitting form, send selectedModifierGroups data
+            @* $("#Additem").click(function (e) {
+                e.preventDefault();
+
+                var formData = new FormData($("#menuForm")[0]);
+                formData.append("selectedModifierGroups", JSON.stringify(selectedModifierGroups));
+
+                $.ajax({
+                    url: '@Url.Action("SubmitMenu", "Menu")',
+                    type: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function (response) {
+                        alert("Menu Item Added Successfully!");
+                    }
+                });
+            });*@
+                $("#Additem").submit(function (e) {
+                    e.preventDefault();
+                    console.log("Submitting AddItem form");
+
+                    // Serialize form fields
+                    var formData = $(this).serializeArray();
+                    var formDataobj = {};
+
+                    // Convert serialized array into an object
+                    $.each(formData, function (index, field) {
+                        formDataobj[field.name] = field.value;
+                    });
+
+                    // Ensure ModifierGroupIdForAdd is an array
+                    formDataobj.ModifierGroupIds = JSON.stringify(selectedModifierGroups); // Convert array to JSON string
+
+                    var submissionData = JSON.stringify(formDataobj); // Final JSON string
+
+                    console.log("Sending data:", submissionData);
+
                     $.ajax({
-                        url: '@Url.Action("GetModifiersByGroup", "Menu")', // Change ControllerName
-                        type: 'GET',
-                        data: { groupId: groupId },
+                        url: '/Menu/AddMenuItem',
+                        type: 'POST',
+                        contentType: "application/json",
+                        data: submissionData,
                         success: function (response) {
-                            $("#modifierList").append(response); // Update modifier list
+                            alert("Item Added Successfully!");
+                        },
+                        error: function (xhr, status, error) {
+                            console.error('Error:', xhr.responseText); // Log detailed error
                         }
                     });
-                } else {
-                    $("#modifierList").html(""); // Clear list if no group selected
-                }
-            });
+                });
+
             // Handle Delete Modifier Group
-            $(document).on("click", ".delete-group", function () {
-                $(this).closest(".modifier-group").remove();
-            });
+
 
 
         });

@@ -1,7 +1,7 @@
 @model DAL.ViewModel.MenuCategoryVM
 
 
-                    <form asp-action="EditItem" asp-controller="Menu" method="post">
+                    <form id="editItemForm" asp-action="EditItem" asp-controller="Menu" method="post">
                            <input type="hidden" asp-for="ItemId"/>
 
 
@@ -154,7 +154,7 @@
                                         {
                                             @foreach (var group in Model.ModifierGroupIds)
                                             {
-                                                @await Html.PartialAsync("_ModifierList", group)
+                                                @await Html.PartialAsync("_EditModifierList", group)
                                             }
                                         }
                                     </div>
@@ -187,6 +187,29 @@
                     }
                 });
             }
+        });
+         $("#editItemForm").submit(function (event) {
+            event.preventDefault(); // Prevent normal form submission
+
+            var formData = $(this).serialize(); // Serialize form data
+
+            $.ajax({
+                url: "/Menu/EditMenuItem",  // URL of the controller action
+                type: "POST",
+                data: formData,
+                success: function (response) {
+                    if (response.success) {
+                        alert("Item updated successfully!");
+                        $("#editModal").modal("hide"); // Hide modal (if using Bootstrap)
+                        location.reload(); // Refresh page or update UI dynamically
+                    } else {
+                        alert("Error: " + response.message);
+                    }
+                },
+                error: function () {
+                    alert("An error occurred while updating the item.");
+                }
+            });
         });
     });
 </script>

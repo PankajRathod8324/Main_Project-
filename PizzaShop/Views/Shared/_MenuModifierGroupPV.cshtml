@@ -368,7 +368,7 @@
 
                     <!-- Modal Footer -->
                     <div class="modal-footer">
-                        <button type="submit" class="btn btn-primary addbtn">Save</button>
+                        <button id="addModifierBtn" type="submit" class="btn btn-primary addbtn">Save</button>
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                     </div>
                 </form>
@@ -400,6 +400,7 @@
 
 
 
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
 
 
@@ -407,8 +408,9 @@
     <script>
 
         $(document).ready(function () {
+            
 
-            @* $.ajax({
+            $.ajax({
                 url: '@Url.Action("MenuModifier", "Menu")',
                 type: 'GET',
                 success: function (data) {
@@ -417,7 +419,7 @@
                 error: function (xhr, status, error) {
                     console.error('error Feching items:', error);
                 }
-            }); *@
+            });
                $('.editbtn').click(function () {
                 let groupId = $(this).data('modid'); // Get Modifier Group ID
                 console.log("Edit Button Pressed", groupId);
@@ -439,7 +441,7 @@
 
 
 
-                console.log(modid);
+                @* console.log(modid); *@
            
                 $(".showdeletemodal").click(function () {
 
@@ -453,7 +455,7 @@
                 var modname = $(this).data("modname");
                 var modDescription = $(this).data("moddescription")
 
-                console.log(modid);
+                console.log(modid); 
 
 
                 $(".ModifierGroupId").val(modid);
@@ -461,7 +463,8 @@
                 $(".ModifierGroupDescription").val(modDescription);
                 @* $("#Modal").modal("show"); *@
             });
-            $(document).ready(function () {
+            
+             $(document).ready(function () {
                 $(".modifier-group-checkbox").change(function () {
                     var selected = [];
                     $(".modifier-group-checkbox:checked").each(function () {
@@ -642,6 +645,7 @@
                 success: function (data) {
 
                     $('#modifierTable').append(data);
+                    $("#")
                 },
                 error: function (xhr, status, error) {
                     console.error('error Feching items:', error);

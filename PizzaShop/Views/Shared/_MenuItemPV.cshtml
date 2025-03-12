@@ -238,6 +238,7 @@
                 data: { itemId: itemid },
                 success: function (data) {
                     $("#modalbody").html(data);
+                    @* $("#modifierList").append(data); *@
                     @* $("#editItemModal").modal("show"); *@
                 },
                 error: function (xhr, status, error) {

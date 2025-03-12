@@ -1,11 +1,14 @@
 using System.Diagnostics;
 using System.Security.Claims;
+using System.Text.Json.Nodes;
 using BLL.Interfaces;
 using DAL.Models;
 using DAL.ViewModel;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Newtonsoft.Json;
+
 // using PizzaShop.Models;
 using X.PagedList.Extensions;
 
@@ -77,27 +80,24 @@ public class MenuController : Controller
     [Authorize(Policy = "MenuEditPolicy")]
     public IActionResult EditMenuItem(int itemId)
     {
-        // Fetch Categories
+        // Fetch Categories, Item Types, Units, and Modifier Groups
         ViewBag.Categories = _menuService.GetAllCategories()
             .Select(r => new SelectListItem { Value = r.CategoryId.ToString(), Text = r.CategoryName })
             .ToList();
 
-        // Fetch Item Types
         ViewBag.Itemtypes = _menuService.GetAllItemTypes()
             .Select(r => new SelectListItem { Value = r.ItemtypeId.ToString(), Text = r.ItemType1 })
             .ToList();
 
-        // Fetch Units
         ViewBag.Units = _menuService.GetAllUnits()
             .Select(r => new SelectListItem { Value = r.UnitId.ToString(), Text = r.UnitName })
             .ToList();
 
-        // Fetch Modifier Groups
         ViewBag.ModifierGroups = _menuService.GetAllModifierGroups()
             .Select(r => new SelectListItem { Value = r.ModifierGroupId.ToString(), Text = r.ModifierGroupName })
             .ToList();
 
-        // Get the Item
+        // Fetch Item Data
         var item = _menuService.GetItemById(itemId);
         if (item == null)
         {
@@ -105,12 +105,16 @@ public class MenuController : Controller
         }
 
         // Fetch associated modifier groups
-        ItemModifierGroup itemModifiers = _menuService.GetItemModifier(item.ItemId, (int)item.ModifierGroupId);
+        var itemModifiers = _menuService.GetItemModifier(item.ItemId);
+
+        Console.WriteLine("I am IN Water");
+
+        // var modifiers = _menuService.GetModifiersByModifierGroupId((int)item.ModifierGroupId);
 
         var itemvm = new MenuCategoryVM
         {
-            CategoryId = item.CategoryId,
             ItemId = item.ItemId,
+            CategoryId = item.CategoryId,
             ItemName = item.ItemName,
             ItemtypeId = item.ItemtypeId,
             Rate = item.Rate,
@@ -121,8 +125,23 @@ public class MenuController : Controller
             TaxPercentage = item.TaxPercentage,
             ShortCode = item.ShortCode,
             Description = item.Description,
-            ModifierGroupId = item.ModifierGroupId
+            ModifierGroupId = item.ModifierGroupId,
+            ModifierGroupIds = itemModifiers.Select(m => new ItemModifierVM
+            {
+                ModifierGroupId = m.ModifierGroupId,
+                ModifierGroupName = m.ModifierGroupId != 0 ? _menuService.GetModifierGroupNameById(m.ModifierGroupId) : "No GroupName",
+                MinSelection = m.MinSelection,
+                MaxSelection = m.MaxSelection,
+                MenuModifiers = _menuService.GetModifiersByModifierGroupId(m.ModifierGroupId)
+                    .Select(mod => new ModifierVM
+                    {
+                        ModifierId = mod.ModifierId,
+                        ModifierName = mod.ModifierName,
+                        ModifierRate = (decimal)mod.ModifierRate,
+                    }).ToList()
+            }).ToList()
         };
+
 
 
         return PartialView("_EditItemPV", itemvm);
@@ -131,7 +150,8 @@ public class MenuController : Controller
 
 
     [Authorize(Policy = "MenuEditPolicy")]
-    public IActionResult EditItem(MenuCategoryVM model)
+    [HttpPost]
+    public IActionResult EditMenuItem(MenuCategoryVM model)
     {
         Console.WriteLine("Edit name:" + model.ItemId);
         Console.WriteLine("Edit name:" + model.ItemName);
@@ -144,7 +164,7 @@ public class MenuController : Controller
         }
         Console.WriteLine("In Edit Page");
 
-        var modifier = _menuService.GetItemModifier(model.ItemId, (int)model.ModifierGroupId);
+        // var modifier = _menuService.GetItemModifier(model.ItemId, (int)model.ModifierGroupId);
 
         item.CategoryId = model.CategoryId;
         item.ItemId = model.ItemId;
@@ -356,6 +376,7 @@ public class MenuController : Controller
         MenuModifierGroupVM modifiervm = new MenuModifierGroupVM
         {
             menuModifiers = modifieritems,
+            ModifierGroupId = groupId,
             ModifierGroupName = groupName.ModifierGroupName
             // UnitName = modifiers.UnitId.HasValue ? _menuService.GetUnitById(modifiers.UnitId.Value) : "No Units"
         };
@@ -493,63 +514,152 @@ public class MenuController : Controller
     }
 
 
-    [Authorize(Policy = "MenuEditPolicy")]
+    // [Authorize(Policy = "MenuEditPolicy")]
+    // [HttpPost]
+    // public IActionResult AddMenuItem([FromBody] JsonObject menuItemdata)
+    // {
+    //        // Convert JsonObject to string and deserialize into the ViewModel
+    //         string jsonString = menuItemdata.ToJsonString(); // Correct way to get JSON string
+    //         var menuCategoryVM = JsonConvert.DeserializeObject<MenuCategoryVM>(jsonString);
+
+    //         if (menuCategoryVM == null)
+    //         {
+    //             return BadRequest("Invalid JSON format. Could not parse data.");
+    //         }
+
+    //         Console.WriteLine($"Received Item Name: {menuCategoryVM.ItemName}");
+    //         Console.WriteLine($"Received Modifier Groups: {string.Join(",", menuCategoryVM.ModifierGroupIds)}");
+
+    //         // Step 1: Save Menu Item
+    //         var menuitem = new MenuItem
+    //         {
+    //             CategoryId = menuCategoryVM.CategoryId,
+    //             ItemName = menuCategoryVM.ItemName,
+    //             ItemtypeId = menuCategoryVM.ItemtypeId,
+    //             Rate = menuCategoryVM.Rate,
+    //             Quantity = menuCategoryVM.Quantity,
+    //             UnitId = menuCategoryVM.UnitId,
+    //             IsAvailable = menuCategoryVM.IsAvailable,
+    //             TaxDefault = menuCategoryVM.TaxDefault,
+    //             TaxPercentage = menuCategoryVM.TaxPercentage,
+    //             ShortCode = menuCategoryVM.ShortCode,
+    //             Description = menuCategoryVM.Description
+    //         };
+
+    //         _menuService.AddMenuItem(menuitem);
+
+    //         // Step 2: Save Modifier Groups (if any)
+    //         if (menuCategoryVM.ModifierGroupIds != null && menuCategoryVM.ModifierGroupIds.Any())
+    //         {
+    //             foreach (var modifierGroup in menuCategoryVM.ModifierGroupIds)
+    //             {
+    //                 var menuitemmodifier = new ItemModifierGroup
+    //                 {
+    //                     ItemId = menuitem.ItemId, // Link to menu item
+    //                     ModifierGroupId = modifierGroup.ModifierGroupId,
+    //                     MinSelection = modifierGroup.MinSelection,
+    //                     MaxSelection = modifierGroup.MaxSelection
+    //                 };
+
+    //                 _menuService.AddMenuItemModifierGroup(menuitemmodifier);
+    //             }
+    //         }
+
+    //         TempData["Message"] = "Menu item added successfully!";
+    //         TempData["MessageType"] = "success";
+
+    //         return RedirectToAction("MenuModifier", "Menu");
+
+    // }
+
+
     [HttpPost]
-    public IActionResult AddMenuItem(MenuCategoryVM menuItem)
+    public IActionResult AddMenuItem([FromBody] JsonObject menuItemData)
     {
-        // if (!ModelState.IsValid)
-        // {
-        //     foreach (var state in ModelState)
-        //     {
-        //         foreach (var error in state.Value.Errors)
-        //         {
-        //             Console.WriteLine($"Property: {state.Key}, Error: {error.ErrorMessage}");
-        //         }
-        //     }
-        //     return View(menuItem);
-        // }
+        if (menuItemData == null)
+        {
+            return BadRequest("Invalid JSON format. Could not parse data.");
+        }
+
+        Console.WriteLine("Raw JSON received: " + menuItemData.ToString());
+
+        // Extract individual values safely
+        string itemName = menuItemData["ItemName"]?.ToString();
+        int categoryId = TryParseInt(menuItemData["CategoryId"]);
+        int itemTypeId = TryParseInt(menuItemData["ItemtypeId"]);
+        decimal rate = TryParseDecimal(menuItemData["Rate"]);
+        int quantity = TryParseInt(menuItemData["Quantity"]);
+        int unitId = TryParseInt(menuItemData["UnitId"]);
+        bool isAvailable = TryParseBool(menuItemData["IsAvailable"]);
+        decimal taxPercentage = TryParseDecimal(menuItemData["TaxPercentage"]);
+        string shortCode = menuItemData["ShortCode"]?.ToString();
+        string description = menuItemData["Description"]?.ToString();
+        bool taxDefault = TryParseBool(menuItemData["TaxDefault"]);
+
+        // Parse Modifier Groups JSON array safely
+        List<ItemModifierGroup> modifierGroups = new List<ItemModifierGroup>();
+        if (menuItemData.ContainsKey("ModifierGroupIds") && menuItemData["ModifierGroupIds"] != null)
+        {
+            modifierGroups = JsonConvert.DeserializeObject<List<ItemModifierGroup>>(menuItemData["ModifierGroupIds"].ToString());
+        }
+
+        Console.WriteLine($"Received Item Name: {itemName}");
+        Console.WriteLine($"Modifier Groups: {string.Join(",", modifierGroups.Select(m => m.ModifierGroupId))}");
 
         // Step 1: Save Menu Item
         var menuitem = new MenuItem
         {
-            CategoryId = menuItem.CategoryId,
-            ItemName = menuItem.ItemName,
-            ItemtypeId = menuItem.ItemtypeId,
-            Rate = menuItem.Rate,
-            Quantity = menuItem.Quantity,
-            UnitId = menuItem.UnitId,
-            IsAvailable = menuItem.IsAvailable,
-            TaxDefault = menuItem.TaxDefault,
-            TaxPercentage = menuItem.TaxPercentage,
-            ShortCode = menuItem.ShortCode,
-            Description = menuItem.Description
+            CategoryId = categoryId,
+            ItemName = itemName,
+            ItemtypeId = itemTypeId,
+            Rate = rate,
+            Quantity = quantity,
+            UnitId = unitId,
+            IsAvailable = isAvailable,
+            TaxPercentage = taxPercentage,
+            ShortCode = shortCode,
+            Description = description,
+            TaxDefault = taxDefault
         };
 
         _menuService.AddMenuItem(menuitem);
 
-        // Step 2: Save Multiple Modifier Groups
-        if (menuItem.ModifierGroupIds != null && menuItem.ModifierGroupIds.Any())
+        // Step 2: Save Modifier Groups (if present)
+        if (modifierGroups.Any())
         {
-            foreach (var modifierGroupId in menuItem.ModifierGroupIds)
+            foreach (var modifierGroup in modifierGroups)
             {
                 var menuitemmodifier = new ItemModifierGroup
                 {
-                    ItemId = menuitem.ItemId, // Link to menu item
-                    ModifierGroupId = modifierGroupId.ModifierGroupId,
-                    MinSelection = menuItem.MinSelection,
-                    MaxSelection = menuItem.MaxSelection
+                    ItemId = menuitem.ItemId,
+                    ModifierGroupId = modifierGroup.ModifierGroupId,
+                    MinSelection = modifierGroup.MinSelection,
+                    MaxSelection = modifierGroup.MaxSelection
                 };
 
                 _menuService.AddMenuItemModifierGroup(menuitemmodifier);
             }
         }
 
-        TempData["Message"] = "Menu item added successfully!";
-        TempData["MessageType"] = "success";
+        return Json(new { success = true, message = "Menu Item Added Successfully!" });
 
-        return RedirectToAction("MenuModifier", "Menu", menuitem.ModifierGroupId);
+
     }
 
+    private int TryParseInt(object value)
+    {
+        return int.TryParse(value?.ToString(), out int result) ? result : 0;
+    }
+
+    private decimal TryParseDecimal(object value)
+    {
+        return decimal.TryParse(value?.ToString(), out decimal result) ? result : 0;
+    }
+
+    private bool TryParseBool(object value)
+    {
+        return bool.TryParse(value?.ToString(), out bool result) ? result : false;
+    }
 
 
 

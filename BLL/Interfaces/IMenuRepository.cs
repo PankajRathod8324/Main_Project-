@@ -43,15 +43,17 @@ public interface IMenuRepository
 
   public MenuItem GetItemById(int itemid);
 
-  ItemModifierGroup GetItemModifier(int itemid, int modifiergroupid);
+  List<ItemModifierGroup> GetItemModifier(int itemid);
 
   public string GetUnitById(int unitId);
 
+   public string GetModifierGroupNameById(int modifiergroupid);
+
   List<MenuModifier> GetModifiersByModifierGroupId(int modifierGroupId);
 
-   public List<MenuModifierGroup> GetModifierGroupsByModifierId(int modifierId);
+  public List<MenuModifierGroup> GetModifierGroupsByModifierId(int modifierId);
 
-   public void RemoveCombinedModifierGroup(int modifierId, int groupId);
+  public void RemoveCombinedModifierGroup(int modifierId, int groupId);
   void AddModifierGroup(MenuModifierGroup modifierGroup);
 
   void UpdateModifierGroup(MenuModifierGroupVM modifierGroup);

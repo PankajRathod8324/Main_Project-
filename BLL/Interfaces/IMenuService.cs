@@ -18,7 +18,7 @@ public interface IMenuService
   void DeleteCategory(MenuCategory category);
   List<MenuItem> GetItemsByCategoryId(int categoryId);
 
-  ItemModifierGroup GetItemModifier(int itemid, int modifiergroupid);
+  List<ItemModifierGroup> GetItemModifier(int itemid);
   void AddMenuItem(MenuItem menuItem);
 
   void AddMenuItemModifierGroup(ItemModifierGroup menuitemmodifier);
@@ -43,6 +43,10 @@ public interface IMenuService
 
     public IPagedList<MenuModifierGroupVM> getFilteredMenuModifiers(int groupId, UserFilterOptions filterOptions);
   MenuModifierGroup GetModifierGroupById(int id);
+
+   public string GetModifierGroupNameById(int modifiergroupid);
+
+
 
   //  string GetModifierNameById(int modifierId, MenuModifierGroupVM modifierGroups);
 

@@ -12,7 +12,9 @@ namespace DAL.ViewModel
 
         public IPagedList<MenuItem>? menuItems { get; set; }
 
-        public List<ItemModifierGroup> ModifierGroupIds { get; set; }
+        public List<ItemModifierVM> ModifierGroupIds { get; set; }
+
+        public List<int> ModifierGroupIdForAdd {get; set;}
 
         public int? CategoryId { get; set; }
 

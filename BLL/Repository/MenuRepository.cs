@@ -218,14 +218,23 @@ public class MenuRepository : IMenuRepository
         return _context.MenuItems.FirstOrDefault(r => r.ItemId == itemid);
     }
 
+    public string GetModifierGroupNameById(int modifiergroupid)
+    {
+        var grpName = (from modgrp in _context.MenuModifierGroups
+                       where modgrp.ModifierGroupId == modifiergroupid
+                       select modgrp.ModifierGroupName).FirstOrDefault();
+        return grpName;
+
+    }
+
     public MenuModifier GetModifierById(int modifierid)
     {
         return _context.MenuModifiers.FirstOrDefault(r => r.ModifierId == modifierid);
     }
 
-    public ItemModifierGroup GetItemModifier(int itemid, int modifiergroupid)
+    public List<ItemModifierGroup> GetItemModifier(int itemid)
     {
-        return _context.ItemModifierGroups.FirstOrDefault(r => r.ItemId == itemid && r.ModifierGroupId == modifiergroupid);
+        return _context.ItemModifierGroups.Where(r => r.ItemId == itemid).ToList();
     }
 
 

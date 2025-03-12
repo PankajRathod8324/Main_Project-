@@ -56,9 +56,14 @@ public class MenuService : IMenuService
         return _menuRepository.GetItemsByCategoryId(categoryId);
     }
 
-    public ItemModifierGroup GetItemModifier(int itemid, int modifiergroupid)
+    public List<ItemModifierGroup> GetItemModifier(int itemid)
     {
-        return _menuRepository.GetItemModifier(itemid, modifiergroupid);
+        return _menuRepository.GetItemModifier(itemid);
+    }
+
+    public string GetModifierGroupNameById(int modifiergroupid)
+    {
+        return _menuRepository.GetModifierGroupNameById(modifiergroupid);
     }
 
     public void AddMenuItem(MenuItem menuItem)

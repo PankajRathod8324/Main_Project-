@@ -1,10 +1,9 @@
-@model DAL.ViewModel.MenuModifierGroupVM
+@model DAL.ViewModel.ItemModifierVM
 
 @if (Model != null)
 {
     <div class="modifier-group mt-3 p-2 border rounded">
         <input type="hidden" name="MenuModifierGroups[@Model.ModifierGroupId].ModifierGroupId" value="@Model.ModifierGroupId">
-        <input type="hidden" name="MenuModifierGroups[@Model.ModifierGroupId].ModifierGroupName" value="@Model.ModifierGroupName">
 
         <div class="d-flex justify-content-between align-items-center">
             <h5>@Model.ModifierGroupName</h5>
@@ -29,23 +28,29 @@
         </div>
 
         <ul class="list-unstyled mt-2">
-            @for (int i = 0; i < Model.menuModifiers.Count; i++)
+            @if (Model.MenuModifiers != null && Model.MenuModifiers.Any())
             {
-                var modifier = Model.menuModifiers[i];
-                <li class="d-flex justify-content-between">
-                    <span>• @modifier.ModifierName</span>
-                    <span>₹ @modifier.ModifierRate</span>
-                    
-                    <input type="hidden" name="MenuModifierGroups[@Model.ModifierGroupId].menuModifiers.Index" value="@i">
-                    <input type="hidden" name="MenuModifierGroups[@Model.ModifierGroupId].menuModifiers[@i].ModifierId" value="@modifier.ModifierId">
-                    <input type="hidden" name="MenuModifierGroups[@Model.ModifierGroupId].menuModifiers[@i].ModifierName" value="@modifier.ModifierName">
-                    <input type="hidden" name="MenuModifierGroups[@Model.ModifierGroupId].menuModifiers[@i].ModifierRate" value="@modifier.ModifierRate">
-                </li>
+                @for (int i = 0; i < Model.MenuModifiers.Count; i++)
+                {
+                    var modifier = Model.MenuModifiers[i];
+                    <li class="d-flex justify-content-between">
+                        <span>• @modifier.ModifierName</span>
+                        <span>₹ @modifier.ModifierRate</span>
+                        
+                        <input type="hidden" name="MenuModifierGroups[@Model.ModifierGroupId].menuModifiers[@i].ModifierId" value="@modifier.ModifierId">
+                        <input type="hidden" name="MenuModifierGroups[@Model.ModifierGroupId].menuModifiers[@i].ModifierName" value="@modifier.ModifierName">
+                        <input type="hidden" name="MenuModifierGroups[@Model.ModifierGroupId].menuModifiers[@i].ModifierRate" value="@modifier.ModifierRate">
+                    </li>
+                }
+            }
+            else
+            {
+                <li>No modifiers available.</li>
             }
         </ul>
     </div>
 }
 else
 {
-    <p>No modifiers available.</p>
+    <p>No modifier groups available.</p>
 }
