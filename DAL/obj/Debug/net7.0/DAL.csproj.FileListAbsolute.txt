@@ -13,8 +13,8 @@ d:\Training\Assignment\Pizza_Shop\DAL\obj\Debug\net7.0\refint\DAL.dll
 d:\Training\Assignment\Pizza_Shop\DAL\obj\Debug\net7.0\DAL.pdb
 D:\Training\Assignment\Pizza_Shop\DAL\obj\Debug\net7.0\DAL.genruntimeconfig.cache
 D:\Training\Assignment\Pizza_Shop\DAL\obj\Debug\net7.0\ref\DAL.dll
-D:\MY_TEMP\PizzaShop_N_Tier-main\DAL\bin\Debug\net7.0\DAL.deps.json
-D:\MY_TEMP\PizzaShop_N_Tier-main\DAL\bin\Debug\net7.0\DAL.runtimeconfig.json
+d:\MY_TEMP\PizzaShop_N_Tier-main\DAL\bin\Debug\net7.0\DAL.deps.json
+d:\MY_TEMP\PizzaShop_N_Tier-main\DAL\bin\Debug\net7.0\DAL.runtimeconfig.json
 d:\MY_TEMP\PizzaShop_N_Tier-main\DAL\bin\Debug\net7.0\DAL.dll
 d:\MY_TEMP\PizzaShop_N_Tier-main\DAL\bin\Debug\net7.0\DAL.pdb
 d:\MY_TEMP\PizzaShop_N_Tier-main\DAL\obj\Debug\net7.0\DAL.csproj.AssemblyReference.cache
@@ -26,5 +26,5 @@ d:\MY_TEMP\PizzaShop_N_Tier-main\DAL\obj\Debug\net7.0\DAL.sourcelink.json
 d:\MY_TEMP\PizzaShop_N_Tier-main\DAL\obj\Debug\net7.0\DAL.dll
 d:\MY_TEMP\PizzaShop_N_Tier-main\DAL\obj\Debug\net7.0\refint\DAL.dll
 d:\MY_TEMP\PizzaShop_N_Tier-main\DAL\obj\Debug\net7.0\DAL.pdb
-D:\MY_TEMP\PizzaShop_N_Tier-main\DAL\obj\Debug\net7.0\DAL.genruntimeconfig.cache
-D:\MY_TEMP\PizzaShop_N_Tier-main\DAL\obj\Debug\net7.0\ref\DAL.dll
+d:\MY_TEMP\PizzaShop_N_Tier-main\DAL\obj\Debug\net7.0\DAL.genruntimeconfig.cache
+d:\MY_TEMP\PizzaShop_N_Tier-main\DAL\obj\Debug\net7.0\ref\DAL.dll

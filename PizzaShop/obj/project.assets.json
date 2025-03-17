@@ -11453,11 +11453,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "d:\\MY_TEMP\\PizzaShop_N_Tier-main\\PizzaShop\\PizzaShop.csproj",
+      "projectUniqueName": "D:\\MY_TEMP\\PizzaShop_N_Tier-main\\PizzaShop\\PizzaShop.csproj",
       "projectName": "PizzaShop",
-      "projectPath": "d:\\MY_TEMP\\PizzaShop_N_Tier-main\\PizzaShop\\PizzaShop.csproj",
+      "projectPath": "D:\\MY_TEMP\\PizzaShop_N_Tier-main\\PizzaShop\\PizzaShop.csproj",
       "packagesPath": "C:\\Users\\LENOVO\\.nuget\\packages\\",
-      "outputPath": "d:\\MY_TEMP\\PizzaShop_N_Tier-main\\PizzaShop\\obj\\",
+      "outputPath": "D:\\MY_TEMP\\PizzaShop_N_Tier-main\\PizzaShop\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\LENOVO\\AppData\\Roaming\\NuGet\\NuGet.Config"
@@ -11472,11 +11472,11 @@
         "net7.0": {
           "targetAlias": "net7.0",
           "projectReferences": {
-            "d:\\MY_TEMP\\PizzaShop_N_Tier-main\\BLL\\BLL.csproj": {
-              "projectPath": "d:\\MY_TEMP\\PizzaShop_N_Tier-main\\BLL\\BLL.csproj"
+            "D:\\MY_TEMP\\PizzaShop_N_Tier-main\\BLL\\BLL.csproj": {
+              "projectPath": "D:\\MY_TEMP\\PizzaShop_N_Tier-main\\BLL\\BLL.csproj"
             },
-            "D:\\MY_TEMP\\PizzaShop_N_Tier-main\\DAL\\DAL.csproj": {
-              "projectPath": "D:\\MY_TEMP\\PizzaShop_N_Tier-main\\DAL\\DAL.csproj"
+            "d:\\MY_TEMP\\PizzaShop_N_Tier-main\\DAL\\DAL.csproj": {
+              "projectPath": "d:\\MY_TEMP\\PizzaShop_N_Tier-main\\DAL\\DAL.csproj"
             }
           }
         }

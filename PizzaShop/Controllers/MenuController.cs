@@ -352,7 +352,7 @@ public class MenuController : Controller
             menuModifiers = modifierItems
         };
 
-        return PartialView("_EditModifierByModifierGroup.", modifierVM);
+        return PartialView("_MenuModifierByModifierGroup", modifierVM);
     }
 
     [Authorize]
@@ -745,6 +745,33 @@ public class MenuController : Controller
 
         return PartialView("_EditModifierGroupPV", viewModel); // Return Partial View
 
+    }
+
+    public IActionResult GetModifierByGroup(int groupId)
+    {
+        var modifiers = _menuService.GetModifiersByModifierGroupId(groupId);
+        var groupName = _menuService.GetModifierGroupNameById(groupId);
+
+        var modifierItems = modifiers.Select(item => new MenuModifierGroupVM
+        {
+            ModifierGroupId = item.ModifierGroupId ?? 0, // Avoid null exception
+            ModifierId = item.ModifierId,
+            ModifierName = item.ModifierName,
+            ModifierRate = item.ModifierRate,
+            UnitId = item.UnitId,
+            Quantity = item.Quantity,
+            ModifierDecription = item.ModifierDecription,
+            UnitName = item.UnitId.HasValue ? _menuService.GetUnitById(item.UnitId.Value) : "No Unit"
+        }).ToList();
+
+        var modifierVM = new MenuModifierGroupVM
+        {
+            menuModifiers = modifierItems,
+            ModifierGroupId = groupId,
+            ModifierGroupName = groupName
+        };
+
+        return PartialView("_EditModifierByModifierGroup", modifierVM);
     }
 
 

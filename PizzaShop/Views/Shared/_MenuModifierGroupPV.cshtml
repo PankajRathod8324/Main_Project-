@@ -13,7 +13,7 @@
     @* <script src='https://code.jquery.com/jquery-3.7.0.js'></script> *@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/PizzaShop.styles.css" asp-append-version="true" />
-    <script src='https://code.jquery.com/jquery-3.7.0.js'></script>
+    @* <script src='https://code.jquery.com/jquery-3.7.0.js'></script> *@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
         crossorigin="anonymous"></script>
@@ -108,7 +108,7 @@
                 </div>
             </div>
 
-            <div class="overflow-y-scroll  mt-3" style="max-width: 1000px; max-height: 1000px;">
+            <div class="overflow-x-hidden  mt-3" style="max-width: 1000px; max-height: 400px;">
                 @foreach (var modifierGroups in Model.menuModifierGroups)
                 {
                     <div class="row hoverDiv">
@@ -266,6 +266,7 @@
             </div>
         </div>
     </div>
+
 
 
     <div class="modal fade" id="newmodifierModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -429,7 +430,7 @@
                     type: 'GET',
                     success: function (data) {
                         $('.editmodifierview').html(data); // Inject Partial View
-                        $('#editModifierGroupModal').modal('show'); // Show Modal
+                        @* $('#editModifierGroupModal').modal('show'); // Show Modal *@
                     },
                     error: function (xhr) {
                         console.error('Error fetching data:', xhr.responseText);
@@ -645,7 +646,7 @@
                 success: function (data) {
 
                     $('#modifierTable').append(data);
-                    $("#")
+                   
                 },
                 error: function (xhr, status, error) {
                     console.error('error Feching items:', error);

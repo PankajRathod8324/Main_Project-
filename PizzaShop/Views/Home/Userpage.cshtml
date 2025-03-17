@@ -26,7 +26,13 @@
         integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
         crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
-
+    <style>
+        #table thead {
+            display: table;
+            width: 100%;
+            table-layout: fixed;
+        }
+    </style>
 
 </head>
 
@@ -42,10 +48,16 @@
                 <div class="col ">
                     <h1 class="" style="color: #0066b2 !important;">Users </h1>
                 </div>
-                <div class="col-5 d-flex align-items-center gap-3 justify-content-end pe-0">
-                    <input class="form-control d-inline w-auto" type="search" name="search"
-                        placeholder="Search by First Name" value="@Context.Request.Query["search"]">
-                    <select name="filterBy" class="form-select d-inline w-auto">
+                <div class="col d-flex align-items-center gap-3 justify-content-end pe-0">
+                    <div class="position-relative">
+                        <input class="form-control" type="search" name="search" placeholder="Search by First Name"
+                            value="@Context.Request.Query["search"]" style="height: 60px; padding-right: 40px;">
+                        <i class="fa fa-search position-absolute text-primary"
+                            style="top: 50%; right: 10px; transform: translateY(-50%);"></i>
+                    </div>
+
+
+                    @* <select name="filterBy" class="form-select d-inline w-auto">
                         <option value="">All Users</option>
                         <option value="Active"
                             selected="@(Context.Request.Query["filterBy"] == "Active" ? "selected" : null)">Active
@@ -54,14 +66,17 @@
                             selected="@(Context.Request.Query["filterBy"] == "Inactive" ? "selected" : null)">
                             Inactive
                         </option>
-                    </select>
+                    </select> *@
 
-                    <button type="submit" class="btn btn-primary">Search</button>
                     <a asp-area="" asp-controller="User" asp-action="Adduser" class="text-black">
-                        <button type="button" class="btn btn-primary  " style="width: 110px;">
-                            <i class="fa fa-plus"></i> Add User
+                        <button type="button" class="btn btn-lg btn-primary px-4"
+                            style="height: 60px; border-radius: 0; white-space: nowrap; background-color: #0066b2 !important; font-size: 17px;">
+                            <i class="fa fa-plus me-2"></i> Add User
                         </button>
                     </a>
+
+
+
                 </div>
             </div>
         </form>
@@ -101,26 +116,31 @@
                         <th>Action</th>
                     </tr>
                 </thead>
-                <tbody id="userTable">
+                <tbody id="userTable" class="table-body-container">
                     @Html.Partial("_UserList", Model)
-
                 </tbody>
 
             </table>
+
             <div class="d-flex justify-content-end align-items-center my-3 gap-2">
                 <form method="get" class="d-flex align-items-center me-3">
                     <span class="me-2">Items per page:</span>
                     <select name="pageSize" class="form-select form-select-sm w-auto me-3"
                         onchange="this.form.submit()">
-                        <option value="5" selected="@(Context.Request.Query["pageSize"] == "5" ? "selected" : null)">5
-                        </option>
-                        <option value="10" selected="@(Context.Request.Query["pageSize"] == "10" ? "selected" : null)">
-                            10</option>
-                        <option value="15" selected="@(Context.Request.Query["pageSize"] == "15" ? "selected" : null)">
-                            15</option>
-                        <option value="20" selected="@(Context.Request.Query["pageSize"] == "20" ? "selected" : null)">
-                            20</option>
+                        <option value="5" selected="@(Context.Request.Query["pageSize"] == "5")">5</option>
+                        <option value="10" selected="@(Context.Request.Query["pageSize"] == "10")">10</option>
+                        <option value="15" selected="@(Context.Request.Query["pageSize"] == "15")">15</option>
+                        <option value="20"selected="@(Context.Request.Query["pageSize"] == "20")">20</option>
                     </select>
+
+                    <!-- Preserve other query params -->
+                    @foreach (var key in Context.Request.Query.Keys)
+                    {
+                        if (key != "pageSize") // Don't duplicate pageSize
+                        {
+                            <input type="hidden" name="@key" value="@Context.Request.Query[key]" />
+                        }
+                    }
 
                     <!-- Pagination Summary -->
                     <span id="pagination-summary" class="text-muted">
@@ -130,6 +150,7 @@
                         of @Model.TotalItemCount results
                     </span>
                 </form>
+
 
                 <!-- Previous Button -->
                 <a href="@Url.Action("Userpage", new { page = Model.PageNumber - 1, search = Context.Request.Query["search"], filterBy = Context.Request.Query["filterBy"], sortBy = Context.Request.Query["sortBy"], pageSize = Context.Request.Query["pageSize"] })"

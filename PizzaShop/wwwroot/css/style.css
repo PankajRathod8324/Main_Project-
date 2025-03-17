@@ -3,6 +3,32 @@
     background-color: rgb(209, 235, 250);
 }
 
+#togglePassword {
+    font-size: 1.2rem;
+    color: #6c757d;
+    /* Adjust color as needed */
+}
+
+#emailicon {
+    font-size: 1.2rem;
+    color: #6c757d;
+    /* Adjust color as needed */
+}
+
+.webybtn {
+    color: rgba(0, 102, 167, 1);
+}
+
+a {
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+    /* Optional: Adds underline only on hover */
+}
+
+
 .forgotBackground {
     background-color: rgb(209, 235, 250);
 }
@@ -55,14 +81,29 @@
 
 /* Sidebar */
 
-.sidebar ul li a.active {
-    color: #fff;
-    /* Change text color for active link */
-    background-color: #007bff;
-    /* Change background color for active link */
+.sidebar-item {
+    padding: 10px;
+    cursor: pointer;
     border-radius: 5px;
-    /* Optional: Add some border radius */
+    transition: 0.3s ease;
 }
+
+/* Active state */
+.dashboardicon.active {
+    border-radius: 5px;
+    /* Optional: Add border radius */
+}
+
+.dashboardicon.active a {
+    color: rgba(0, 102, 167, 1);
+    /* Blue text */
+    font-weight: bold;
+}
+
+.dashboardicon.active img {
+    filter: brightness(0) saturate(100%) invert(22%) sepia(97%) saturate(2424%) hue-rotate(185deg) brightness(89%) contrast(89%);
+}
+
 
 .sidebar ul li img {
     margin-right: 8px;
@@ -176,3 +217,15 @@
     /* Dim inactive arrow */
 }
 
+.table-body-container {
+    display: block;
+    max-height: 400px;
+    /* Adjust height as needed */
+    overflow-y: auto;
+}
+
+.table-body-container tr {
+    display: table;
+    width: 100%;
+    table-layout: fixed;
+}

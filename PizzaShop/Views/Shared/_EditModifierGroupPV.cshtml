@@ -31,35 +31,65 @@
         </div>
 
         <!-- Button to Add Modifier -->
-        <button type="button" class="btn btn-outline-primary mt-2" id="addModifierBtn">
+        <button type="button" class="btn btn-outline-primary mt-2"  data-bs-toggle="modal" data-bs-target="#editAllModifiersModal" id="addModifierBtn">
             <i class="fas fa-plus"></i> Add Modifier
         </button>
-
-        <div id="modifierPartialContainer"></div> <!-- Partial View Container -->
     </div>
 </form>
 
+<!-- Modifier Selection Modal -->
+<div class="modal" id="editAllModifiersModal" tabindex="-1" aria-labelledby="allModifiersLabel" aria-hidden="true">
+    <div class="modal-dialog  modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="allModifiersLabel">Select Modifiers</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <div class="modal-body">
+                <input type="text" id="searchQuery" class="form-control mb-3" placeholder="Search Modifier">
+                <div id="modifierPartialContainer"></div> <!-- Partial View Container -->
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="addSelectedModifiers">Add Selected</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <script>
-
     $(document).on('click', '#addModifierBtn', function () {
+        const alreadyOpen = $('.modal.show');
+        console.log('Already Open:');
+        if (alreadyOpen.length > 0) {
+            const modalInstance = $(alreadyOpen).modal('hide');
+
+            if (modalInstance) {
+                modalInstance.hide();
+                alreadyOpen.on('hidden.bs.modal', function () {
+                    $('#editAllModifiersModal').modal('show');
+                });
+                return;
+            }
+        }
+
         $.ajax({
             url: `/Menu/GetAllModifier`,
             type: 'GET',
             success: function (data) {
-                $('#modifierPartialContainer').html(data); // Inject Partial View
-                $('#addModifierModal').modal('show'); // Show Add Modifier Modal
+                $('#modifierPartialContainer').html(data);
+                $('#editAllModifiersModal').modal('show');
             },
             error: function (xhr) {
-                console.error('Error fetching add modifier partial:', xhr.responseText);    
+                console.error('Error fetching add modifier partial:', xhr.responseText);
             }
         });
     });
 
-
-
     // Save Selected Modifiers
-    $(document).on('click', '#saveModifiers', function () {
+    $(document).on('click', '#addSelectedModifiers', function () {
         let selectedModifiers = [];
 
         $('.modifier-checkbox:checked').each(function () {
@@ -85,10 +115,22 @@
         });
 
         $('#selectedModifiersList').html(selectedHtml);
-        $('#selectedModifierIds').val(selectedModifiers.map(m => m.id).join(',')); // Hidden Input Update
+        $('#ModifierIds').val(selectedModifiers.map(m => m.id).join(',')); // Update hidden input
 
-        $('#addModifierModal').modal('hide'); // Close Add Modifier Modal
+        $('#editAllModifiersModal').modal('hide'); // Close modal properly
     });
 
-</script>
+    // Remove selected modifier
+    $(document).on('click', '.remove-modifier', function () {
+        $(this).closest('div').remove();
+        updateHiddenModifierIds();
+    });
 
+    function updateHiddenModifierIds() {
+        let selectedModifiers = [];
+        $('#selectedModifiersList div').each(function () {
+            selectedModifiers.push($(this).attr('data-id'));
+        });
+        $('#ModifierIds').val(selectedModifiers.join(','));
+    }
+</script>

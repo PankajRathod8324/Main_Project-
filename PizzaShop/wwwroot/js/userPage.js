@@ -48,31 +48,30 @@ window.addEventListener('resize', function () {
   }
 });
 
-// Get all sidebar links
-const sidebarLinks = document.querySelectorAll('.sidebar ul li a');
+document.addEventListener("DOMContentLoaded", function () {
+  const sidebarItems = document.querySelectorAll(".dashboardicon");
+  const currentPathSegments = window.location.pathname.toLowerCase().split('/').filter(Boolean); // Get URL segments
 
-// Function to set active link
-function setActiveLink() {
-  const activeLink = localStorage.getItem('activeLink');
-  if (activeLink) {
-    sidebarLinks.forEach(link => {
-      if (link.getAttribute('href') === activeLink) {
-        link.classList.add('active');
+  let matchedItem = null;
+
+  sidebarItems.forEach(item => {
+    const link = item.querySelector("a");
+    if (link) {
+      const linkPathSegments = new URL(link.href, window.location.origin).pathname.toLowerCase().split('/').filter(Boolean);
+
+      // Check if the second segment matches
+      if (currentPathSegments.length > 1 && linkPathSegments.includes(currentPathSegments[1])) {
+        matchedItem = item;
       }
-    });
-  }
-}
-
-// Add click event listener to each link
-sidebarLinks.forEach(link => {
-  link.addEventListener('click', function () {
-    // Remove active class from all links
-    sidebarLinks.forEach(item => item.classList.remove('active'));
-    // Add active class to the clicked link
-    this.classList.add('active');
-    // Store the active link in local storage
-    localStorage.setItem('activeLink', this.getAttribute('href'));
+      // If no match, check if the first segment matches
+      else if (currentPathSegments.length > 0 && linkPathSegments.includes(currentPathSegments[0]) && !matchedItem) {
+        matchedItem = item;
+      }
+    }
   });
+
+  // Apply active class to the matched sidebar item
+  if (matchedItem) {
+    matchedItem.classList.add("active");
+  }
 });
-// Set the active link on page load
-setActiveLink();

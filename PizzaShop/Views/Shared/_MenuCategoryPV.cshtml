@@ -634,6 +634,7 @@
                     data: { groupId: groupId },
                     success: function (response) {
                         // Append the new modifier group to the UI
+                        console.log("Response:", response);
                         parentDiv.append(response);
 
                         // Once the partial view is appended, attach event listeners to min/max dropdowns

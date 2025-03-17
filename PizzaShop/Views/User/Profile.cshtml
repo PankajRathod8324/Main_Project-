@@ -2,10 +2,6 @@
 
 @{
     ViewData["Title"] = "Profile Page";
-    if (TempData["Message"] != null)
-    {
-        @TempData["Message"]
-    }
 }
 
 <!DOCTYPE html>
@@ -65,7 +61,7 @@
 <body class="bg-body-tertiary">
     <div class="content mt-2" id="content">
         <div class="col ms-3">
-            <h1 class="text-primary">My Profile</h1>
+            <h1 style="color:rgba(0, 102, 167, 1)">My Profile</h1>
         </div>
 
         <div class="row d-flex mb-2 shadow-lg rounded p-3 m-1">
@@ -172,10 +168,17 @@
                         </div>
                     </div>
                 </div>
-                <div class="text-center">
-                    <button type="submit" class="btn bg-primary border border-primary ms-4 me-3">Update Profile</button>
-                    <button type="button" class="btn bg-white border border-primary"><a class="text-primary" asp-area=""
-                            asp-controller="" asp-action="Userpage">Cancel</a></button>
+                <div class="text-end">
+                    <button type="submit" class="btn text-white text-center"
+                        style="background-color: rgba(0, 102, 167, 1); border-color: rgba(0, 102, 167, 1);">
+                        Update
+                    </button>
+                    <button type="button" class="btn"
+                        style="background-color: white; border-color: rgba(0, 102, 167, 1); color: rgba(0, 102, 167, 1);">
+                        Cancel
+                    </button>
+
+
                 </div>
             </form>
         </div>

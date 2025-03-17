@@ -246,17 +246,17 @@ public class UserService : IUserService
     }
     public IPagedList<UserViewModel> GetFilteredUsers(UserFilterOptions filterOptions)
     {
-        var users = _userRepository.GetAllUsers().AsQueryable(); 
+        var users = _userRepository.GetAllUsers().AsQueryable();
 
-        if (!string.IsNullOrEmpty(filterOptions.FilterBy))
-        {
-            users = filterOptions.FilterBy switch
-            {
-                "Active" => users.Where(u => u.IsActive == true),
-                "Inactive" => users.Where(u => u.IsActive == false),
-                _ => users
-            };
-        }
+        // if (!string.IsNullOrEmpty(filterOptions.FilterBy))
+        // {
+        //     users = filterOptions.FilterBy switch
+        //     {
+        //         "Active" => users.Where(u => u.IsActive),
+        //         "Inactive" => users.Where(u => !u.IsActive),
+        //         _ => users
+        //     };
+        // }
 
         if (!string.IsNullOrEmpty(filterOptions.Search))
         {
@@ -272,6 +272,9 @@ public class UserService : IUserService
             _ => users.OrderBy(u => u.UserId)
         };
 
+        // Preserve PageSize when paginating or sorting
+        int pageSize = filterOptions.PageSize > 0 ? filterOptions.PageSize : 10; // Default to 10
+
         var userViewModels = users.Select(u => new UserViewModel
         {
             UserId = u.UserId,
@@ -284,10 +287,11 @@ public class UserService : IUserService
             IsActive = u.IsActive,
             ProfilePhoto = u.ProfilePhoto,
             RoleName = u.RoleId.HasValue ? GetRoleNameById(u.RoleId.Value) : "No Role"
-        }).ToPagedList(filterOptions.Page.Value, filterOptions.PageSize);
+        }).ToPagedList(filterOptions.Page ?? 1, pageSize);
 
         return userViewModels;
     }
+
     public IEnumerable<Permission> GetAllRolesAndPermissions()
     {
         return _userRepository.GetAllRolesAndPermissions();
@@ -398,12 +402,12 @@ public class UserService : IUserService
     }
     public bool CheckPassword(User user, string password)
     {
-        return user.Password == password; 
+        return user.Password == password;
     }
 
     public void ChangePassword(User user, string newPassword)
     {
-        user.Password = newPassword; 
+        user.Password = newPassword;
         _userRepository.UpdateUser(user);
     }
     public void DeleteUser(AddUserVM model)

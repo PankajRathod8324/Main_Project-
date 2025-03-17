@@ -23,6 +23,14 @@ public class UserController : Controller
     public IActionResult Profile()
     {
         var email = Request.Cookies["email"];
+
+
+        if (string.IsNullOrEmpty(email))
+        {
+            // If email is not found in cookies, get it from session
+            email = HttpContext.Session.GetString("UserEmail");
+        }
+
         if (string.IsNullOrEmpty(email))
         {
             return BadRequest("Email is required.");

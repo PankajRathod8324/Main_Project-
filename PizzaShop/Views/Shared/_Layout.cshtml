@@ -1,14 +1,27 @@
-﻿@using Newtonsoft.Json
+﻿@using BLL.Interfaces
+@using Newtonsoft.Json
 @using System.Security.Claims
 
 @inject IHttpContextAccessor HttpContextAccessor
+@inject IUserService _userService
 
 @{
-    var userDataJson = HttpContextAccessor.HttpContext.Session.GetString("UserData");
-    User user = null;
+
+    @* var userDataJson = HttpContextAccessor.HttpContext.Session.GetString("UserData");
+    var userEmail = HttpContextAccessor.HttpContext.Session.GetString("UserEmail");
+    User user = !string.IsNullOrEmpty(userDataJson) ? JsonConvert.DeserializeObject<User>(userDataJson) : null;
     if (!string.IsNullOrEmpty(userDataJson))
     {
         user = JsonConvert.DeserializeObject<User>(userDataJson);
+    } *@
+
+    var userEmail = HttpContextAccessor.HttpContext.Session.GetString("UserEmail");
+    User user = null;
+
+    if (!string.IsNullOrEmpty(userEmail))
+    {
+        // Fetch user details from the database based on email
+        user = _userService.GetUserByEmail(userEmail); // Call your service method
     }
 }
 
@@ -33,6 +46,15 @@
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
 
+    <!-- jQuery (must be before Bootstrap 4) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- Bootstrap 4 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js"></script>
+
+
+
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 
@@ -44,8 +66,8 @@
     <!-- Toastr CSS -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
 
-    <!-- jQuery (required for Toastr) -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    @* <!-- jQuery (required for Toastr) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script> *@
 
     <!-- Toastr JS -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
@@ -59,6 +81,7 @@
             min-width: 150px;
             z-index: 1050;
         }
+
 
         .toast-success {
             background-color: #28a745 !important;
@@ -115,7 +138,7 @@
                                         style="width: 40px; height: 40px;">
                                     <div>
                                         <p class="mb-0 fw-bold">@user.FirstName</p>
-                                        <small class="text-muted">@user.Email</small>
+                                        <small class="text-muted">@userEmail</small>
                                     </div>
                                 </li>
 
@@ -168,11 +191,11 @@
         <ul class="list-unstyled p-3 m-3">
             <li class="dashboardicon d-flex justify-content-start align-items-center my-4">
                 <img src="~/assest/dashboard-default.svg" alt="">
-                <a class="ms-2" asp-area="" asp-controller="Home" asp-action="Dashboard">Dashboard</a>
+                <a class="ms-2" asp-area="" asp-controller="" asp-action="Dashboard">Dashboard</a>
             </li>
             <li class="dashboardicon d-flex justify-content-start align-items-center my-4">
                 <img src="~/assest/graph-default.svg" alt="">
-                <a class="ms-2" asp-area="" asp-controller="Home" asp-action="Userpage">User</a>
+                <a class="ms-2" asp-area="" asp-controller="" asp-action="Userpage">User</a>
             </li>
             <li class="dashboardicon d-flex justify-content-start align-items-center my-4">
                 <img src="~/assest/inbox-default.svg" alt="">
@@ -184,19 +207,19 @@
             </li>
             <li class="dashboardicon d-flex justify-content-start align-items-center my-4">
                 <img src="~/assest/user-default.svg" alt="">
-                <a class="ms-2" href="#">Table And Section</a>
+                <a class="ms-2" asp-area="" asp-controller="" asp-action="TableAndSection">Table And Section</a>
             </li>
             <li class="dashboardicon d-flex justify-content-start align-items-center my-4">
                 <img src="~/assest/maintenance-default.svg" alt="">
-                <a class="ms-2" href="#">Taxes And Fees</a>
+                <a class="ms-2" asp-area="" asp-controller="" asp-action="TaxesAndFees">Taxes And Fees</a>
             </li>
             <li class="dashboardicon d-flex justify-content-start align-items-center my-4">
                 <img src="~/assest/setting-default.svg" alt="">
-                <a class="ms-2" href="#">Orders</a>
+                <a class="ms-2" asp-area="" asp-controller="" asp-action="Orders">Orders</a>
             </li>
             <li class="dashboardicon d-flex justify-content-start align-items-center my-4">
                 <img src="~/assest/user-default.svg" alt="">
-                <a class="ms-2" href="#">Customer</a>
+                <a class="ms-2" asp-area="" asp-controller="" asp-action="Customer">Customer</a>
             </li>
         </ul>
     </div>
@@ -232,13 +255,14 @@
 
 
     <!-- jQuery -->
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    @* <script src="~/lib/jquery/dist/jquery.min.js"></script> *@
 
     <!-- Bootstrap JavaScript -->
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 
     <!-- Dropdown Initialization Script -->
     <script>
+
         document.addEventListener("DOMContentLoaded", function () {
             var dropdownTrigger = document.getElementById("userDropdown");
             var dropdownMenu = new bootstrap.Dropdown(dropdownTrigger, {

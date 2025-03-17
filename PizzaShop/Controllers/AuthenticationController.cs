@@ -27,10 +27,15 @@ namespace PizzaShop.Controllers
         public IActionResult Loginpage()
         {
             var user = new LoginVM();
+            string accessToken = Request.Cookies["AuthToken"];
             if (Request.Cookies["Email"] != null && Request.Cookies["Password"] != null)
             {
                 user.Email = Request.Cookies["Email"];
                 user.Password = Request.Cookies["Password"];
+            }
+            if (!string.IsNullOrEmpty(accessToken))
+            {
+                return RedirectToAction("Dashboard", "Home");
             }
             return View(user);
         }
@@ -42,13 +47,20 @@ namespace PizzaShop.Controllers
                 return View(model);
             }
 
-            var token = _userService.AuthenticateUser(model.Email, model.Password);// chg to string (remove var)
+            // Authenticate user and get token
+            string token = _userService.AuthenticateUser(model.Email, model.Password);
             if (token == null)
             {
                 ModelState.AddModelError(string.Empty, "Invalid email or password.");
+                TempData["Message"] = "Password or Email is incorrect.";
+                TempData["MessageType"] = "error";
                 return View(model);
             }
 
+            // Store user email in session (even if Remember Me is not checked)
+            HttpContext.Session.SetString("UserEmail", model.Email);
+
+            // If Remember Me is checked, store email & token in cookies
             if (model.RememberMe)
             {
                 var cookieOptions = new CookieOptions
@@ -56,45 +68,55 @@ namespace PizzaShop.Controllers
                     Expires = DateTime.Now.AddDays(30)
                 };
                 Response.Cookies.Append("Email", model.Email, cookieOptions);
-                Response.Cookies.Append("AuthToken", token);
-
+                Response.Cookies.Append("AuthToken", token, cookieOptions);
             }
             else
             {
+                // Remove cookies but keep email in session
                 Response.Cookies.Delete("Email");
             }
-            // Store JWT in Session
-            HttpContext.Session.SetString("AuthToken", token);
-            var email = model.Email;
-            var user = _userService.GetUserByEmail(email);
-            HttpContext.Session.SetString("UserData", JsonConvert.SerializeObject(user));
 
-            var sessionData = HttpContext.Session.GetString("UserData");
-            Console.WriteLine(sessionData);
+            // Store JWT in session
+            HttpContext.Session.SetString("AuthToken", token);
+
+            // Fetch user data and store it in session
+            var user = _userService.GetUserByEmail(model.Email);
+            HttpContext.Session.SetString("UserData", JsonConvert.SerializeObject(user));
 
             // Extract claims from JWT token
             var tokenHandler = new JwtSecurityTokenHandler();
             var jwtToken = tokenHandler.ReadToken(token) as JwtSecurityToken;
             var claims = jwtToken?.Claims.ToList();
-            Console.WriteLine("Claims:");
-            foreach (var claim in claims)
-            {
-                Console.WriteLine($"{claim.Type}: {claim.Value}");
-            }
 
-            var ClaimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-            var claimsPrincipal = new ClaimsPrincipal(ClaimsIdentity);
+            var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+            var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
             await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, claimsPrincipal);
-            // Return the token to the client
+
             return RedirectToAction("Dashboard", "Home");
         }
         public async Task<IActionResult> Logout()
         {
+            // Sign out authentication scheme
             await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+
+            // Remove session data
             HttpContext.Session.Remove("UserData");
             HttpContext.Session.Clear();
+
+            // Expire authentication-related cookies
+            if (Request.Cookies["AuthToken"] != null)
+            {
+                Response.Cookies.Delete("AuthToken");
+            }
+            if (Request.Cookies["Email"] != null)
+            {
+                Response.Cookies.Delete("Email");
+            }
+
+            // Redirect to login page
             return RedirectToAction("Loginpage");
         }
+
         public IActionResult Forgotpasswordpage()
         {
             var user = new ForgotPasswordVM();

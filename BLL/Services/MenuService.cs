@@ -191,7 +191,7 @@ public class MenuService : IMenuService
 
         // Get total count and handle page size dynamically
         int totalItems = menuItems.Count();
-        int pageSize = filterOptions.PageSize > 0 ? Math.Min(filterOptions.PageSize, totalItems) : 10; // Default 10
+        int pageSize = filterOptions.PageSize > 0 ? Math.Min(filterOptions.PageSize, totalItems) : 5; // Default 10
 
         var paginateditems = menuItems
            .Select(item => new MenuCategoryVM
