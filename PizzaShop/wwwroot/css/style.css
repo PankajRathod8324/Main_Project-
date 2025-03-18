@@ -229,3 +229,62 @@ a:hover {
     width: 100%;
     table-layout: fixed;
 }
+
+/* Container Styling */
+.categoryTobehidden {
+    border-radius: 10px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Header Styling */
+.categoryTobehidden h3 {
+    font-weight: bold;
+    color: #333;
+}
+
+/* Category List Styling */
+.hoverDiv {
+    padding: 10px 15px;
+    border-radius: 8px;
+    transition: all 0.3s ease-in-out;
+    cursor: pointer;
+}
+
+/* Hover Effect */
+.hoverDiv:hover {
+    background-color: #f8f9fa;
+}
+
+/* Active Category - Blue Text and Icon */
+.hoverDiv.active {
+    background-color: #e3f2fd; /* Light Blue */
+}
+
+.hoverDiv.active p, 
+.hoverDiv.active .fa-grip-vertical, 
+.hoverDiv.active .edit-btn i, 
+.hoverDiv.active .fa-trash-can {
+    color: #007bff !important; /* Make text and icons blue */
+    font-weight: bold;
+}
+
+/* Icon Styling */
+.hoverIcon a {
+    text-decoration: none;
+    font-size: 18px;
+    transition: color 0.3s ease-in-out;
+}
+
+.hoverIcon a:hover {
+    color: #007bff;
+}
+
+/* Plus Icon */
+.bi-plus-square {
+    cursor: pointer;
+    transition: transform 0.2s ease-in-out;
+}
+
+.bi-plus-square:hover {
+    transform: scale(1.1);
+}

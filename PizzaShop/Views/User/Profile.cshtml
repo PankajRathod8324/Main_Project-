@@ -72,7 +72,7 @@
                             <img id="profileImage" src="@Model.ProfilePicture" alt="User Image" class="profile-pic">
                             <i class="fas fa-camera camera-icon"></i>
                         </div>
-                        <input type="file" id="fileInput" class="file-input" name="ProfileImage">
+                        <input type="file" id="fileInput" class="file-input" name="ProfilePhoto">
                         <input type="hidden" asp-for="ProfilePicture" id="ProfilePicture">
                     </div>
                     <div class="col-md-9">
@@ -269,6 +269,7 @@
                     reader.readAsDataURL(file);
                 }
             });
+
         </script>
 </body>
 

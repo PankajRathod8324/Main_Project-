@@ -1,7 +1,7 @@
 @model DAL.ViewModel.MenuCategoryVM
 
 
-                    <form id="editItemForm" asp-action="EditItem" asp-controller="Menu" method="post">
+                    <form id="EditItem">
                            <input type="hidden" asp-for="ItemId"/>
 
 
@@ -167,6 +167,8 @@
                             <button type="submit" class="btn btn-primary">Save</button>
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                         </div>
+                        <input type="hidden" id="currentPage" name="currentPage" value="@ViewBag.Page" />
+
                     </form>
                 
 
@@ -191,7 +193,7 @@
                 });
             }
         });
-         $("#editItemForm").submit(function (event) {
+         @* $("#editItemForm").submit(function (event) {
             event.preventDefault(); // Prevent normal form submission
 
             var formData = $(this).serialize(); // Serialize form data
@@ -213,9 +215,9 @@
                     alert("An error occurred while updating the item.");
                 }
             });
-        });
+        }); *@
          // Listen for changes in min/max selection
-            $(document).on("change", ".min-input, .max-input", function () {
+            @* $(document).on("change", ".min-input, .max-input", function () {
                 var parentGroup = $(this).closest(".modifier-group");
                 var groupId = parentGroup.find("input[name*='ModifierGroupId']").val();
                 var minSelection = parentGroup.find(".min-input").val();
@@ -230,7 +232,7 @@
                 });
 
                 console.log("Updated Selected Modifier Groups:", selectedModifierGroups);
-            });
+            }); *@
        
   
     });

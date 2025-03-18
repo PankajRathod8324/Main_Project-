@@ -20,7 +20,6 @@ public interface IMenuRepository
 
   void AddMenuItemModifierGroup(ItemModifierGroup menuitemmodifier);
 
-  public void UpdateMenuItem(MenuItem item);
 
   public void DeleteItems(List<MenuItem> items);
 
@@ -65,6 +64,10 @@ public interface IMenuRepository
   void UpdateModifier(MenuModifier modifier);
 
   void DeleteModifiers(List<MenuModifier> modifiers);
+
+  void DeleteModifierGroupsByItemId(int itemId);
+
+  public bool UpdateMenuItem(MenuItem menuItem);
 
 
 }

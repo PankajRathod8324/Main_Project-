@@ -29,56 +29,50 @@ public class MenuController : Controller
     public IActionResult MenuItem(int categoryId, UserFilterOptions filterOptions)
     {
         filterOptions.Page ??= 1;
-        var categories = _menuService.GetAllCategories(); // Fetch Categories from the database
-        var categorySelectList = categories.Select(r => new SelectListItem
+        filterOptions.PageSize = filterOptions.PageSize != 0 ? filterOptions.PageSize : 10; // Default page size
+
+        ViewBag.PageSize = filterOptions.PageSize;
+
+        var categories = _menuService.GetAllCategories();
+        ViewBag.Categories = categories.Select(r => new SelectListItem
         {
             Value = r.CategoryId.ToString(),
             Text = r.CategoryName
         }).ToList();
-        ViewBag.Categories = categorySelectList;
 
-        var itemtypes = _menuService.GetAllItemTypes(); // Fetch ItemTypes from the database
-        var itemtypeSelectList = itemtypes.Select(r => new SelectListItem
+        var itemtypes = _menuService.GetAllItemTypes();
+        ViewBag.Itemtypes = itemtypes.Select(r => new SelectListItem
         {
             Value = r.ItemtypeId.ToString(),
             Text = r.ItemType1
         }).ToList();
-        ViewBag.Itemtypes = itemtypeSelectList;
 
-        var units = _menuService.GetAllUnits(); // Fetch Units from the database
-        var unitSelectList = units.Select(r => new SelectListItem
+        var units = _menuService.GetAllUnits();
+        ViewBag.Units = units.Select(r => new SelectListItem
         {
             Value = r.UnitId.ToString(),
             Text = r.UnitName
         }).ToList();
-        ViewBag.Units = unitSelectList;
 
-        var modifiergroups = _menuService.GetAllModifierGroups(); // Fetch Units from the database
-        var modifiergroupSelectList = modifiergroups.Select(r => new SelectListItem
+        var modifiergroups = _menuService.GetAllModifierGroups();
+        ViewBag.ModifierGroups = modifiergroups.Select(r => new SelectListItem
         {
             Value = r.ModifierGroupId.ToString(),
             Text = r.ModifierGroupName
         }).ToList();
-        ViewBag.ModifierGroups = modifiergroupSelectList;
 
-
-        Console.WriteLine("Click this here : " + categoryId);
-        var unitName = _menuService.GetAllUnits().ToList();
-        // categoryId = categoryId ? null : 11;
-
-
-        X.PagedList.IPagedList<MenuCategoryVM> menuitemvm = _menuService.getFilteredMenuItems(categoryId, filterOptions);
+        var menuitemvm = _menuService.getFilteredMenuItems(categoryId, filterOptions);
 
         if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
         {
             return PartialView("_MenuItemPV", menuitemvm);
         }
-        return PartialView("_MenuItemPV", menuitemvm);
+        return View(menuitemvm);
     }
 
 
     [Authorize(Policy = "MenuEditPolicy")]
-    public IActionResult EditMenuItem(int itemId)
+    public IActionResult EditMenuItem(int itemId, int pagenumber)
     {
         // Fetch Categories, Item Types, Units, and Modifier Groups
         ViewBag.Categories = _menuService.GetAllCategories()
@@ -103,6 +97,8 @@ public class MenuController : Controller
         {
             return NotFound(); // Return a 404 if the item doesn't exist
         }
+        ViewBag.Page = pagenumber;
+        Console.WriteLine("In Edit PageNumber: " + pagenumber);
 
         // Fetch associated modifier groups
         var itemModifiers = _menuService.GetItemModifier(item.ItemId);
@@ -159,42 +155,76 @@ public class MenuController : Controller
 
     [Authorize(Policy = "MenuEditPolicy")]
     [HttpPost]
-    public IActionResult EditMenuItem(MenuCategoryVM model)
+    public IActionResult EditMenuItem([FromBody] JsonObject menuItemData)
     {
-        Console.WriteLine("Edit name:" + model.ItemId);
-        Console.WriteLine("Edit name:" + model.ItemName);
-        // Console.WriteLine("Edit name:" + model.CategoryDescription);
-
-        var item = _menuService.GetItemById(model.ItemId);
-        if (item == null)
+        if (menuItemData == null)
         {
-            return NotFound();
+            return BadRequest("Invalid JSON format. Could not parse data.");
         }
-        Console.WriteLine("In Edit Page");
 
-        // var modifier = _menuService.GetItemModifier(model.ItemId, (int)model.ModifierGroupId);
+        Console.WriteLine("Raw JSON received: " + menuItemData.ToString());
 
-        item.CategoryId = model.CategoryId;
-        item.ItemId = model.ItemId;
-        item.ItemName = model.ItemName;
-        item.ItemtypeId = model.ItemtypeId;
-        item.Rate = model.Rate;
-        item.Quantity = model.Quantity;
-        item.UnitId = model.UnitId;
-        item.IsAvailable = model.IsAvailable;
-        item.TaxDefault = model.TaxDefault;
-        item.TaxPercentage = model.TaxPercentage;
-        item.ShortCode = model.ShortCode;
-        item.Description = model.Description;
+        // Extract Item ID
+        int itemId = TryParseInt(menuItemData["ItemId"]);
+        if (itemId <= 0)
+        {
+            return BadRequest("Invalid Item ID.");
+        }
 
+        // Extract individual fields
+        string itemName = menuItemData["ItemName"]?.ToString();
+        int categoryId = TryParseInt(menuItemData["CategoryId"]);
+        int itemTypeId = TryParseInt(menuItemData["ItemtypeId"]);
+        decimal rate = TryParseDecimal(menuItemData["Rate"]);
+        int quantity = TryParseInt(menuItemData["Quantity"]);
+        int unitId = TryParseInt(menuItemData["UnitId"]);
+        bool isAvailable = TryParseBool(menuItemData["IsAvailable"]);
+        decimal taxPercentage = TryParseDecimal(menuItemData["TaxPercentage"]);
+        string shortCode = menuItemData["ShortCode"]?.ToString();
+        string description = menuItemData["Description"]?.ToString();
+        bool taxDefault = TryParseBool(menuItemData["TaxDefault"]);
 
+        // Parse Modifier Groups JSON array safely
+        List<ItemModifierGroup> modifierGroups = new List<ItemModifierGroup>();
+        if (menuItemData.ContainsKey("ModifierGroupIds") && menuItemData["ModifierGroupIds"] != null)
+        {
+            modifierGroups = JsonConvert.DeserializeObject<List<ItemModifierGroup>>(menuItemData["ModifierGroupIds"].ToString());
+        }
 
+        Console.WriteLine($"Updating Item ID: {itemId}, Name: {itemName}");
+        Console.WriteLine($"Modifier Groups: {string.Join(",", modifierGroups.Select(m => m.ModifierGroupId))}");
 
+        // Step 1: Update Menu Item
+        var menuitem = new MenuItem
+        {
+            ItemId = itemId,
+            CategoryId = categoryId,
+            ItemName = itemName,
+            ItemtypeId = itemTypeId,
+            Rate = rate,
+            Quantity = quantity,
+            UnitId = unitId,
+            IsAvailable = isAvailable,
+            TaxPercentage = taxPercentage,
+            ShortCode = shortCode,
+            Description = description,
+            TaxDefault = taxDefault
+        };
 
-        _menuService.UpdateMenuItem(item);
-        return RedirectToAction("MenuItem", "Menu", new { categoryId = item.CategoryId });
+        bool updateSuccess = _menuService.UpdateMenuItem(menuitem);
+
+        if (!updateSuccess)
+        {
+            return BadRequest("Failed to update Menu Item.");
+        }
+
+        // Step 2: Update Modifier Groups
+        _menuService.UpdateMenuItemModifierGroups(itemId, modifierGroups);
+        TempData["Message"] = "Item updated successfully!";
+        TempData["MessageType"] = "success";
+
+        return Json(new { success = true, message = "Menu Item Updated Successfully!" });
     }
-
 
 
     [Authorize(Policy = "MenuViewPolicy")]
@@ -292,6 +322,9 @@ public class MenuController : Controller
     [Authorize(Policy = "MenuViewPolicy")]
     public IActionResult MenuModifier(int groupId, UserFilterOptions filterOptions)
     {
+        filterOptions.Page ??= 1;
+        filterOptions.PageSize = filterOptions.PageSize != 0 ? filterOptions.PageSize : 10; // Default page size
+
         var units = _menuService.GetAllUnits(); // Fetch Units from the database
         var unitSelectList = units.Select(r => new SelectListItem
         {
@@ -512,6 +545,8 @@ public class MenuController : Controller
         if (ModelState.IsValid)
         {
             _menuService.AddCategory(category);
+            TempData["Message"] = "Category added successfully!";
+            TempData["MessageType"] = "success";
             return RedirectToAction("Menu", "Home");
         }
         return RedirectToAction("Menu", "Home");
@@ -546,6 +581,8 @@ public class MenuController : Controller
         // }
 
         // return Json(new { success = false, message = "Invalid data" });
+        TempData["Message"] = "Category updated successfully!";
+        TempData["MessageType"] = "info";
         _menuService.UpdateCategory(model);
         return RedirectToAction("Menu", "Home");
     }
@@ -559,7 +596,7 @@ public class MenuController : Controller
         var category = _menuService.GetCategoryById(id);
         _menuService.DeleteCategory(category);
         TempData["Message"] = "Category deleted successfully!";
-        TempData["MessageType"] = "error";
+        TempData["MessageType"] = "success";
         return RedirectToAction("Menu", "Home");
     }
 

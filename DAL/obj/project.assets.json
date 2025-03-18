@@ -7904,11 +7904,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "d:\\MY_TEMP\\PizzaShop_N_Tier-main\\DAL\\DAL.csproj",
+      "projectUniqueName": "D:\\MY_TEMP\\PizzaShop_N_Tier-main\\DAL\\DAL.csproj",
       "projectName": "DAL",
-      "projectPath": "d:\\MY_TEMP\\PizzaShop_N_Tier-main\\DAL\\DAL.csproj",
+      "projectPath": "D:\\MY_TEMP\\PizzaShop_N_Tier-main\\DAL\\DAL.csproj",
       "packagesPath": "C:\\Users\\LENOVO\\.nuget\\packages\\",
-      "outputPath": "d:\\MY_TEMP\\PizzaShop_N_Tier-main\\DAL\\obj\\",
+      "outputPath": "D:\\MY_TEMP\\PizzaShop_N_Tier-main\\DAL\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\LENOVO\\AppData\\Roaming\\NuGet\\NuGet.Config"

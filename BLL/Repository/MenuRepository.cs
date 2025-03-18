@@ -72,11 +72,39 @@ public class MenuRepository : IMenuRepository
     }
 
 
-    public void UpdateMenuItem(MenuItem item)
+    public bool UpdateMenuItem(MenuItem menuItem)
     {
-        _context.MenuItems.Update(item);
-        Save();
+        var existingItem = _context.MenuItems.FirstOrDefault(m => m.ItemId == menuItem.ItemId);
+        if (existingItem == null)
+        {
+            return false;
+        }
+
+        existingItem.ItemName = menuItem.ItemName;
+        existingItem.CategoryId = menuItem.CategoryId;
+        existingItem.ItemtypeId = menuItem.ItemtypeId;
+        existingItem.Rate = menuItem.Rate;
+        existingItem.Quantity = menuItem.Quantity;
+        existingItem.UnitId = menuItem.UnitId;
+        existingItem.IsAvailable = menuItem.IsAvailable;
+        existingItem.TaxPercentage = menuItem.TaxPercentage;
+        existingItem.ShortCode = menuItem.ShortCode;
+        existingItem.Description = menuItem.Description;
+        existingItem.TaxDefault = menuItem.TaxDefault;
+
+        _context.SaveChanges();
+        return true;
     }
+
+    public void DeleteModifierGroupsByItemId(int itemId)
+    {
+        var existingModifiers = _context.ItemModifierGroups.Where(m => m.ItemId == itemId);
+        _context.ItemModifierGroups.RemoveRange(existingModifiers);
+        _context.SaveChanges();
+    }
+
+
+
 
     public void DeleteItems(List<MenuItem> items)
     {

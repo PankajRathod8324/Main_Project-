@@ -78,6 +78,22 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 return Task.CompletedTask;
             },
         };
+        options.Events = new JwtBearerEvents
+        {
+            OnTokenValidated = context =>
+            {
+                var claimsIdentity = context.Principal.Identity as ClaimsIdentity;
+                if (claimsIdentity != null)
+                {
+                    var emailClaim = claimsIdentity.FindFirst("email"); // Look for "email" from your JWT
+                    if (emailClaim != null)
+                    {
+                        claimsIdentity.AddClaim(new Claim(ClaimTypes.Email, emailClaim.Value));
+                    }
+                }
+                return Task.CompletedTask;
+            }
+        };
     });
 
 

@@ -76,10 +76,34 @@ public class MenuService : IMenuService
         _menuRepository.AddMenuItemModifierGroup(menuitemmodifier);
     }
 
-    public void UpdateMenuItem(MenuItem item)
+    public bool UpdateMenuItem(MenuItem menuItem)
     {
-        _menuRepository.UpdateMenuItem(item);
+        return _menuRepository.UpdateMenuItem(menuItem);
     }
+
+    public void UpdateMenuItemModifierGroups(int itemId, List<ItemModifierGroup> modifierGroups)
+    {
+        // Step 1: Remove existing modifier groups for the item
+        _menuRepository.DeleteModifierGroupsByItemId(itemId);
+
+        // Step 2: Add new modifier groups
+        if (modifierGroups != null && modifierGroups.Any())
+        {
+            foreach (var modifierGroup in modifierGroups)
+            {
+                var newModifierGroup = new ItemModifierGroup
+                {
+                    ItemId = itemId,
+                    ModifierGroupId = modifierGroup.ModifierGroupId,
+                    MinSelection = modifierGroup.MinSelection,
+                    MaxSelection = modifierGroup.MaxSelection
+                };
+
+                _menuRepository.AddMenuItemModifierGroup(newModifierGroup);
+            }
+        }
+    }
+
 
     public void DeleteItem(List<MenuItem> items)
     {

@@ -23,7 +23,7 @@ public interface IMenuService
 
   void AddMenuItemModifierGroup(ItemModifierGroup menuitemmodifier);
 
-  public void UpdateMenuItem(MenuItem item);
+  bool UpdateMenuItem(MenuItem menuItem);
 
   public MenuModifier GetModifierById(int modifierid);
 
@@ -41,10 +41,10 @@ public interface IMenuService
 
   public IPagedList<MenuCategoryVM> getFilteredMenuItems(int categoryId, UserFilterOptions filterOptions);
 
-    public IPagedList<MenuModifierGroupVM> getFilteredMenuModifiers(int groupId, UserFilterOptions filterOptions);
+  public IPagedList<MenuModifierGroupVM> getFilteredMenuModifiers(int groupId, UserFilterOptions filterOptions);
   MenuModifierGroup GetModifierGroupById(int id);
 
-   public string GetModifierGroupNameById(int modifiergroupid);
+  public string GetModifierGroupNameById(int modifiergroupid);
 
 
 
@@ -52,9 +52,9 @@ public interface IMenuService
 
   List<MenuModifier> GetModifiersByModifierGroupId(int modifierGroupId);
 
-   public List<MenuModifierGroup> GetModifierGroupsByModifierId(int modifierId);
+  public List<MenuModifierGroup> GetModifierGroupsByModifierId(int modifierId);
 
-    public void RemoveCombinedModifierGroup(int modifierId, int groupId);
+  public void RemoveCombinedModifierGroup(int modifierId, int groupId);
 
   public MenuItem GetItemById(int itemid);
 
@@ -67,6 +67,8 @@ public interface IMenuService
   void UpdateModifier(MenuModifier modifier);
 
   void DeleteModifierGroup(MenuModifierGroup modifierGroup);
+
+  void UpdateMenuItemModifierGroups(int itemId, List<ItemModifierGroup> modifierGroups);
 
   public void AddModifier(MenuModifier modifier);
   void DeleteModifiers(List<MenuModifier> modifiers);

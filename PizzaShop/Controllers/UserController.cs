@@ -92,7 +92,7 @@ public class UserController : Controller
     {
         PopulateDropdowns(model.CountryId, model.StateId);
         _userService.AddUser(model, profileimage);
-        await SendInfoEmail(model.Email);
+        // await SendInfoEmail(model.Email);
         TempData["Message"] = "User added successfully!";
         TempData["MessageType"] = "success";
 
