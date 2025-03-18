@@ -9,10 +9,12 @@ namespace DAL.ViewModel
 
         // public MenuCategory EditCategory { get; set; }
 
-        public List<ItemModifierGroup>? itemModifierGroups { get; set; }
+        public List<ItemModifierVM>? itemModifierGroups { get; set; }
 
          public List<int> ModifierIds { get; set; }
         public int ModifierGroupId { get; set; }
+
+         public int ItemId { get; set; }
 
         public List<int> ModifierGroupIds { get; set; } = new List<int>(); 
 

@@ -1,9 +1,12 @@
 using System.Diagnostics;
+using System.Net;
+using System.Net.Mail;
 using System.Security.Claims;
 using BLL.Interfaces;
 using DAL.Models;
 using DAL.ViewModel;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
@@ -14,9 +17,11 @@ public class UserController : Controller
 {
     private readonly IUserService _userService;
 
-    public UserController(IUserService userService)
+    private readonly IHttpContextAccessor _httpContextAccessor;
+    public UserController(IUserService userService, IHttpContextAccessor httpContextAccessor)
     {
         _userService = userService;
+        _httpContextAccessor = httpContextAccessor;
     }
 
     [Authorize]
@@ -83,10 +88,11 @@ public class UserController : Controller
     }
 
     [HttpPost]
-    public IActionResult Adduser(AddUserVM model, IFormFile profileimage)
+    public async Task<IActionResult> AdduserAsync(AddUserVM model, IFormFile profileimage)
     {
         PopulateDropdowns(model.CountryId, model.StateId);
         _userService.AddUser(model, profileimage);
+        await SendInfoEmail(model.Email);
         TempData["Message"] = "User added successfully!";
         TempData["MessageType"] = "success";
 
@@ -241,6 +247,67 @@ public class UserController : Controller
             }).ToList()
             : new List<SelectListItem>();
     }
+
+    private async Task SendInfoEmail(string email)
+    {
+        // Fetch user details from the database
+        var user = _userService.GetUserByEmail(email);
+        if (user == null) return; // Exit if user doesn't exist
+
+        // Get the request context
+        var request = _httpContextAccessor.HttpContext.Request;
+
+        // Fetch logo URL dynamically from wwwroot
+        var logoUrl = $"{request.Scheme}://{request.Host}/assest/logos/pizzashop_logo.png";
+
+        // Load the email template from wwwroot
+        string templatePath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/templates/EmailTemplate.html");
+        string emailBody = await System.IO.File.ReadAllTextAsync(templatePath);
+
+        // Generate reset link
+        // var resetLink = $"{request.Scheme}://{request.Host}/Authentication/Resetpasswordpage?email={email}";
+
+        // Replace placeholders in the email template
+        emailBody = emailBody.Replace("{{LOGO_URL}}", logoUrl)
+                             .Replace("{{USERNAME}}", user.Username)  // Fetch username from DB
+                             .Replace("{{EMAIL}}", user.Email)
+                             .Replace("{{TEMP_PASSWORD}}", user.Password)  // Fetch temp password
+                                                                           //  .Replace("{{RESET_LINK}}", resetLink)
+                             .Replace("{{YEAR}}", DateTime.Now.Year.ToString());
+
+        // Create the email message
+        var message = new MailMessage
+        {
+            From = new MailAddress("test.dotnet@etatvasoft.com", "Your Company"),
+            Subject = "Your Account Details",
+            Body = emailBody,
+            IsBodyHtml = true
+        };
+        message.To.Add(new MailAddress(email));
+
+        // Configure SMTP client
+        using (var smtp = new SmtpClient("mail.etatvasoft.com", 587))
+        {
+            smtp.EnableSsl = true;
+            smtp.Credentials = new NetworkCredential("test.dotnet@etatvasoft.com", "P}N^{z-]7Ilp");
+            await smtp.SendMailAsync(message);
+        }
+    }
+    //     var resetLink = Url.Action("Resetpasswordpage", "Authentication", new { token, email }, Request.Scheme);
+    //     var message = new MailMessage("test.dotnet@etatvasoft.com", email);
+    //     message.To.Add(new MailAddress(email));
+    //         message.Subject = "Password Reset Request";
+    //         message.Body = $"Please reset your password by clicking here: <a href='{resetLink}'>link</a>";
+    //         message.IsBodyHtml = true;
+    //         using (var smtp = new SmtpClient())
+    //         {
+    //             smtp.Host = "mail.etatvasoft.com";
+    //             smtp.Port = 587;
+    //             smtp.EnableSsl = true;
+    //             smtp.Credentials = new NetworkCredential("test.dotnet@etatvasoft.com", "P}N^{z-]7Ilp");
+    //     await smtp.SendMailAsync(message);
+    // }
+    // }
 
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public IActionResult Error()

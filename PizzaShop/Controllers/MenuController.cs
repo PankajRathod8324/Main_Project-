@@ -128,12 +128,20 @@ public class MenuController : Controller
             ModifierGroupId = item.ModifierGroupId,
             ModifierGroupIds = itemModifiers.Select(m => new ItemModifierVM
             {
+                ItemId = m.ItemId,
                 ModifierGroupId = m.ModifierGroupId,
                 ModifierGroupName = m.ModifierGroupId != 0 ? _menuService.GetModifierGroupNameById(m.ModifierGroupId) : "No GroupName",
                 MinSelection = m.MinSelection,
                 MaxSelection = m.MaxSelection,
                 MenuModifiers = _menuService.GetModifiersByModifierGroupId(m.ModifierGroupId)
                     .Select(mod => new ModifierVM
+                    {
+                        ModifierId = mod.ModifierId,
+                        ModifierName = mod.ModifierName,
+                        ModifierRate = (decimal)mod.ModifierRate,
+                    }).ToList(),
+                MenuModifierGroupItem = _menuService.GetModifiersByModifierGroupId(m.ModifierGroupId)
+                    .Select(mod => new MenuModifierGroupVM
                     {
                         ModifierId = mod.ModifierId,
                         ModifierName = mod.ModifierName,
@@ -180,8 +188,11 @@ public class MenuController : Controller
         item.Description = model.Description;
 
 
+
+
+
         _menuService.UpdateMenuItem(item);
-        return RedirectToAction("Menu", "Home");
+        return RedirectToAction("MenuItem", "Menu", new { categoryId = item.CategoryId });
     }
 
 
@@ -352,7 +363,7 @@ public class MenuController : Controller
             menuModifiers = modifierItems
         };
 
-        return PartialView("_MenuModifierByModifierGroup", modifierVM);
+        return PartialView("_EditModifierByModifierGroup", modifierVM);
     }
 
     [Authorize]
@@ -360,6 +371,7 @@ public class MenuController : Controller
     {
         var modifiers = _menuService.GetModifiersByModifierGroupId(groupId);
         var groupName = _menuService.GetModifierGroupById(groupId);
+        // var combinemodifier = _menuService.GetItemModifier()
 
         var modifieritems = modifiers
            .Select(item => new MenuModifierGroupVM
@@ -378,12 +390,75 @@ public class MenuController : Controller
             menuModifiers = modifieritems,
             ModifierGroupId = groupId,
             ModifierGroupName = groupName.ModifierGroupName
+
+
             // UnitName = modifiers.UnitId.HasValue ? _menuService.GetUnitById(modifiers.UnitId.Value) : "No Units"
         };
 
 
         // var groupName = _menuService.GetModifierNameById(groupId, modifiervm);
         return PartialView("_ModifierList", modifiervm);
+    }
+
+    [Authorize]
+    public IActionResult GetModifiersByGroupEdit(int groupId, UserFilterOptions filterOptions)
+    {
+        var modifiers = _menuService.GetModifiersByModifierGroupId(groupId);
+        var groupName = _menuService.GetModifierGroupById(groupId);
+
+        var modifieritems = modifiers.Select(item => new MenuModifierGroupVM
+        {
+            ModifierGroupId = (int)item.ModifierGroupId,
+            ModifierName = item.ModifierName,
+            ModifierRate = item.ModifierRate,
+            UnitId = item.UnitId,
+            Quantity = item.Quantity,
+            ModifierDecription = item.ModifierDecription,
+            UnitName = item.UnitId.HasValue ? _menuService.GetUnitById(item.UnitId.Value) : "No Unit"
+        }).ToList();
+
+        // Creating the ItemModifierVM instance
+        ItemModifierVM modifieritemvm = new ItemModifierVM
+        {
+            ModifierGroupId = groupId,
+            ModifierGroupName = groupName.ModifierGroupName,
+            MenuModifierGroupItem = modifieritems
+        };
+
+        return PartialView("_EditModifierList", modifieritemvm);
+    }
+
+
+    public IActionResult GetModifiersGroupByItem(int groupId, UserFilterOptions filterOptions, int itemId)
+    {
+        var modifiers = _menuService.GetModifiersByModifierGroupId(groupId);
+        var groupName = _menuService.GetModifierGroupById(groupId);
+        var combinemodifier = _menuService.GetItemModifier(itemId);
+
+        var modifieritems = modifiers
+           .Select(item => new MenuModifierGroupVM
+           {
+               ModifierName = item.ModifierName,
+               ModifierRate = item.ModifierRate,
+           }).ToList();
+        MenuModifierGroupVM modifiervm = new MenuModifierGroupVM
+        {
+            menuModifiers = modifieritems,
+            ModifierGroupId = groupId,
+            ModifierGroupName = groupName.ModifierGroupName,
+            itemModifierGroups = combinemodifier.Select(modifier => new ItemModifierVM
+            {
+                ItemId = modifier.ItemId,
+                ModifierGroupId = modifier.ModifierGroupId,
+                MaxSelection = modifier.MaxSelection,
+                MinSelection = modifier.MinSelection
+            }).ToList(),
+            // UnitName = modifiers.UnitId.HasValue ? _menuService.GetUnitById(modifiers.UnitId.Value) : "No Units"
+        };
+
+
+        // var groupName = _menuService.GetModifierNameById(groupId, modifiervm);
+        return Json(modifiervm);
     }
     // public IActionResult GetModifiers(int page = 1, string search = "")
     // {
@@ -745,33 +820,6 @@ public class MenuController : Controller
 
         return PartialView("_EditModifierGroupPV", viewModel); // Return Partial View
 
-    }
-
-    public IActionResult GetModifierByGroup(int groupId)
-    {
-        var modifiers = _menuService.GetModifiersByModifierGroupId(groupId);
-        var groupName = _menuService.GetModifierGroupNameById(groupId);
-
-        var modifierItems = modifiers.Select(item => new MenuModifierGroupVM
-        {
-            ModifierGroupId = item.ModifierGroupId ?? 0, // Avoid null exception
-            ModifierId = item.ModifierId,
-            ModifierName = item.ModifierName,
-            ModifierRate = item.ModifierRate,
-            UnitId = item.UnitId,
-            Quantity = item.Quantity,
-            ModifierDecription = item.ModifierDecription,
-            UnitName = item.UnitId.HasValue ? _menuService.GetUnitById(item.UnitId.Value) : "No Unit"
-        }).ToList();
-
-        var modifierVM = new MenuModifierGroupVM
-        {
-            menuModifiers = modifierItems,
-            ModifierGroupId = groupId,
-            ModifierGroupName = groupName
-        };
-
-        return PartialView("_EditModifierByModifierGroup", modifierVM);
     }
 
 

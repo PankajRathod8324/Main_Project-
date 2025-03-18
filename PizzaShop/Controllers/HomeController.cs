@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+﻿﻿using System.Diagnostics;
 using System.Security.Claims;
 using BLL.Interfaces;
 using DAL.Models;
@@ -38,6 +38,12 @@ public class HomeController : Controller
         return View();
     }
 
+    public IActionResult TokenExpire()
+    {
+
+        return View();
+    }
+
 
     // [Authorize(Policy = "ChefOnly")]
     // [Authorize(Roles = "Chef")]
@@ -57,7 +63,7 @@ public class HomeController : Controller
         filterOptions.IsAsc ??= true;
 
         // Fetch paginated and filtered users from the service
-        var userViewModels = _userService.GetFilteredUsers(filterOptions);
+        X.PagedList.IPagedList<UserViewModel> userViewModels = _userService.GetFilteredUsers(filterOptions);
 
         ViewBag.SortBy = filterOptions.SortBy;
         ViewBag.IsAsc = filterOptions.IsAsc;
@@ -81,6 +87,12 @@ public class HomeController : Controller
     {
         var roles = _userService.GetAllRoles();
         return View(roles);
+    }
+
+     [Authorize(Policy = "TableAndSectionViewPolicy")]
+    public IActionResult TableAndSection()
+    {
+        return View();
     }
 
 

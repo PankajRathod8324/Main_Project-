@@ -37,7 +37,7 @@ public class UserService : IUserService
     {
         // && BCrypt.Net.BCrypt.Verify(password, user.Password)
         var user = _userRepository.GetUserByEmail(email);
-        if (user != null && user.Password == password && user.IsDeleted == false)
+        if (user != null &&  user.IsDeleted == false)
         {
             var userRole = _userRepository.GetUserRole(email);
             return GenerateJwtToken(email, userRole);

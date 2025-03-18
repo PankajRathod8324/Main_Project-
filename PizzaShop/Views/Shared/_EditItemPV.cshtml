@@ -144,7 +144,7 @@
                             <div class="col">
                                 <div class="card  text-center p-3 h-100" style="background-color: #fff4e6;">
 
-                                    <select class="form-select" asp-for="ModifierGroupId"
+                                    <select id="modifierGroupDropdown" class="form-select" asp-for="ModifierGroupId"
                                         asp-items=" ViewBag.ModifierGroups">
                                         <option selected>Select Modifier Groups(s)</option>
                                     </select>
@@ -172,7 +172,9 @@
 
                 <script>
     $(document).ready(function () {
-        
+      
+
+
         $('#ModifierGroupId').change(function () {
             var groupId = $(this).val();
             if (groupId) {
@@ -212,5 +214,24 @@
                 }
             });
         });
+         // Listen for changes in min/max selection
+            $(document).on("change", ".min-input, .max-input", function () {
+                var parentGroup = $(this).closest(".modifier-group");
+                var groupId = parentGroup.find("input[name*='ModifierGroupId']").val();
+                var minSelection = parentGroup.find(".min-input").val();
+                var maxSelection = parentGroup.find(".max-input").val();
+
+                // Update the selectedModifierGroups array
+                selectedModifierGroups.forEach((group) => {
+                    if (group.modifiergroupid == groupId) {
+                        group.minSelection = minSelection;
+                        group.maxSelection = maxSelection;
+                    }
+                });
+
+                console.log("Updated Selected Modifier Groups:", selectedModifierGroups);
+            });
+       
+  
     });
 </script>

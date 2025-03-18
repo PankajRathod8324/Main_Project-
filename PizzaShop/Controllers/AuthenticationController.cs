@@ -130,10 +130,13 @@ namespace PizzaShop.Controllers
             if (user != null)
             {
                 ViewBag.Message = "A reset link has been sent to your email.";
+                TempData["Message"] = "Email has been send successfully!";
+                TempData["MessageType"] = "success";
                 await SendResetEmail(user.Email, user.ResetToken);
+
             }
 
-            return View("Forgotpasswordpage");
+            return RedirectToAction("Forgotpasswordpage", "Authentication");
         }
 
 
@@ -144,7 +147,10 @@ namespace PizzaShop.Controllers
             var user = _userService.GetUserByToken(token);
             if (user == null)
             {
-                return NotFound();
+                TempData["Message"] = "Your reset password link has been used or expired!";
+                TempData["MessageType"] = "error"; // Types: success, error, warning, info
+                return RedirectToAction("Loginpage", "Authentication");
+
             }
 
             var model = new ResetPasswordVM
@@ -183,12 +189,14 @@ namespace PizzaShop.Controllers
             {
                 ViewBag.Message = "A Password Reset Successful.";
                 Console.WriteLine("Password reset process successful.");
+                TempData["Message"] = "Password has been resert successfully!";
+                TempData["MessageType"] = "success";
                 return RedirectToAction("Loginpage", "Authentication");
             }
 
             ModelState.AddModelError("", "Invalid token or the token has expired.");
             Console.WriteLine("Invalid token or the token has expired.");
-            return View("Resetpasswordpage", model);
+            return RedirectToAction("Loginpage", "Authentication");
         }
         private async Task SendResetEmail(string email, string token)
         {

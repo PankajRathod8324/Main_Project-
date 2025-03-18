@@ -3,7 +3,7 @@
     background-color: rgb(209, 235, 250);
 }
 
-#togglePassword {
+.togglePassword {
     font-size: 1.2rem;
     color: #6c757d;
     /* Adjust color as needed */

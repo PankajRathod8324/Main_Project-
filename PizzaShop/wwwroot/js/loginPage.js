@@ -1,23 +1,24 @@
 document.addEventListener("DOMContentLoaded", function () {
-    const togglePassword = document.getElementById("togglePassword");
-    const passwordField = document.getElementById("password");
+    const togglePasswords = document.getElementsByClassName("togglePassword");
+    const passwordFields = document.getElementsByClassName("password");
+
     console.log("loginPage.js is loaded successfully!");
 
-
-    if (togglePassword && passwordField) {
-        togglePassword.addEventListener("click", function () {
-            if (passwordField.type === "password") {
-                passwordField.type = "text";
-                togglePassword.classList.remove("fa-eye-slash");
-                togglePassword.classList.add("fa-eye");
-            } else {
-                passwordField.type = "password";
-                togglePassword.classList.remove("fa-eye");
-                togglePassword.classList.add("fa-eye-slash");
-            }
-        });
-    } else {
-        console.error("Toggle password elements not found!");
+    for (let i = 0; i < togglePasswords.length; i++) {
+        if (togglePasswords[i] && passwordFields[i]) {
+            togglePasswords[i].addEventListener("click", function () {
+                if (passwordFields[i].type === "password") {
+                    passwordFields[i].type = "text";
+                    togglePasswords[i].classList.remove("fa-eye-slash");
+                    togglePasswords[i].classList.add("fa-eye");
+                } else {
+                    passwordFields[i].type = "password";
+                    togglePasswords[i].classList.remove("fa-eye");
+                    togglePasswords[i].classList.add("fa-eye-slash");
+                }
+            });
+        } else {
+            console.error("Toggle password elements not found!");
+        }
     }
 });
-

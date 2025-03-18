@@ -229,8 +229,15 @@
                     }
                 });
         }
-          
+        var ItemIdTemp = 0;
+         function loadModifiersForEdit(ItemIdTemp) {
+            console.log("initial-scale load KJdknsd"+ ItemIdTemp);
+           
+
+        }
+        var selectedModifierGroups = [];
         function editItem(itemid) {
+            ItemIdTemp = itemid;
             console.log("HOmenefhjmdejhedj," + itemid);
             $.ajax({
                 url: '@Url.Action("EditMenuItem", "Menu")',
@@ -238,6 +245,13 @@
                 data: { itemId: itemid },
                 success: function (data) {
                     $("#modalbody").html(data);
+                    selectedModifierGroups = data.ModifierGroupIds || [];
+                    @* console.log(data); *@
+                     // Call function to load modifiers separately
+                     loadModifiersForEdit(ItemIdTemp);
+
+                    
+
                     @* $("#modifierList").append(data); *@
                     @* $("#editItemModal").modal("show"); *@
                 },
@@ -246,6 +260,8 @@
                 }
             });
         }
+
+       
         // selectAll 
 
        
